@@ -256,7 +256,7 @@ public class BuildTool : EditorWindow
             }
             catch (Exception e)
             {
-                throw e;
+                Debug.LogError("解析版本号失败:" + e);
             }
         }
 
