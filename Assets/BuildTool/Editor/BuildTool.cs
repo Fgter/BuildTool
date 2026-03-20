@@ -242,9 +242,9 @@ public class BuildTool : EditorWindow
     {
         if (platformEnum == Platform.PC)
             return;
-        try
+        if (!keepVersionToggle.value)
         {
-            if (!keepVersionToggle.value)
+            try
             {
                 string version = PlayerSettings.bundleVersion;//通用版本号
                 string[] versionList = version.Split(new char[] { '.' });
@@ -254,22 +254,22 @@ public class BuildTool : EditorWindow
                 string newLongVersion = string.Join(".", versionList);
                 PlayerSettings.bundleVersion = newLongVersion;
             }
-
-            switch (platformEnum)//平台版本号
+            catch (Exception e)
             {
-                case Platform.Android:
-                    PlayerSettings.Android.bundleVersionCode = PlayerSettings.Android.bundleVersionCode + 1;
-                    break;
-                case Platform.IOS:
-                    PlayerSettings.iOS.buildNumber = (int.Parse(PlayerSettings.iOS.buildNumber) + 1).ToString();
-                    break;
+                throw e;
             }
-            RefreshVersion();
         }
-        catch
+
+        switch (platformEnum)//平台版本号
         {
-            throw;
-        };
+            case Platform.Android:
+                PlayerSettings.Android.bundleVersionCode = PlayerSettings.Android.bundleVersionCode + 1;
+                break;
+            case Platform.IOS:
+                PlayerSettings.iOS.buildNumber = (int.Parse(PlayerSettings.iOS.buildNumber) + 1).ToString();
+                break;
+        }
+        RefreshVersion();
 
         AssetDatabase.Refresh();
         EditorApplication.ExecuteMenuItem("File/Save Project");
