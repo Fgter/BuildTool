@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4e178b0b8cfc70459decaf65f1f9f64, type: 3}
+  m_Name: AssetbundleBuildConfig
+  m_EditorClassIdentifier: 
+  bundleOptions: 288
+  androidPath: E:\UnityProjects\BuildTool\AssetBundles\Android
+  iosPath: E:\UnityProjects\BuildTool\AssetBundles\iOS
+  pcPath: E:\UnityProjects\BuildTool\AssetBundles\PC
+  androidStreamingPath: E:/UnityProjects/BuildTool/Assets/StreamingAssets/AssetBundles/Android
+  iosStreamingPath: E:/UnityProjects/BuildTool/Assets/StreamingAssets/AssetBundles/iOS
+  pcStreamingPath: E:/UnityProjects/BuildTool/Assets/StreamingAssets/AssetBundles/PC
