@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Permissions;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
