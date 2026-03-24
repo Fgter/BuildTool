@@ -39,7 +39,10 @@ public class PrePostProcessConfig : ScriptableObject
         }
     }
 
-    [Header("移动文件处理\ntips:后处理地址填入OnPostProcessBuild中\npathToBuiltProject下的地址.\npathToBuiltProject为打包出来的文件夹\n如 ios:E:\\UnityProjects\\BuildTool\\Builds\\IOSBuilds\\XXX_IOS_V0.1.16(8)_20260324_1705\\")]
+    [Header("移动文件处理")]
+    [Header("tips:后处理地址填入OnPostProcessBuild中pathToBuiltProject下的地址.")]
+    [Header("pathToBuiltProject为打包出来的文件夹")]
+    [Header("如 ios:E:\\UnityProjects\\BuildTool\\Builds\\IOSBuilds\\XXX_IOS_V0.1.16(8)_20260324_1705\\")]
     [Header("Android")]
     public List<MoveFileItem> androidPreMoveFileProcess;
     [Header("IOS")]
