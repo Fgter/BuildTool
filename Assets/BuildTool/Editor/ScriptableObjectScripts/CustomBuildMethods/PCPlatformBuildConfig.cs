@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace BuildTool
 {
-    [CreateAssetMenu(menuName = "BuildTool/BuildData/Platform/PC")]
+    [CreateAssetMenu(menuName = "BuildTool/BuildConfig/Platform/PC")]
     public class PCPlatformBuildConfig : PlatformBuildConfigBase
     {
         public override bool OnBuild(BuildPathConfig pathData, string[] scriptingDefines = null)
@@ -23,6 +23,8 @@ namespace BuildTool
             {
                 Directory.CreateDirectory(buildPath);
             }
+
+            PrePostProcessConfig.instance.OnPreProcessBuild(BuildTarget.StandaloneWindows64);
 
             var now = DateTime.Now;
             string directoryPath;

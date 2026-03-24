@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace BuildTool
 {
-    [CreateAssetMenu(menuName = "BuildTool/BuildData/Path")]
+    [CreateAssetMenu(menuName = "BuildTool/BuildConfig/Path")]
     public class BuildPathConfig : ScriptableObject
     {
         [Header("打包路径")]

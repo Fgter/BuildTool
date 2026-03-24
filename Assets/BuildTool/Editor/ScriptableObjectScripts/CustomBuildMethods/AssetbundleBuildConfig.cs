@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace BuildTool
 {
-    [CreateAssetMenu(menuName = "BuildTool/BuildData/AssetBundle")]
+    [CreateAssetMenu(menuName = "BuildTool/BuildConfig/AssetBundle")]
     public class AssetbundleBuildConfig : ScriptableObject
     {
         public BuildAssetBundleOptions bundleOptions =

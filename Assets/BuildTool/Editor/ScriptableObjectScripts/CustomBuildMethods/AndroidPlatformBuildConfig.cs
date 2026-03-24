@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace BuildTool
 {
-    [CreateAssetMenu(menuName = "BuildTool/BuildData/Platform/Android")]
+    [CreateAssetMenu(menuName = "BuildTool/BuildConfig/Platform/Android")]
     public class AndroidPlatformBuildConfig : PlatformBuildConfigBase
     {
         public override bool OnBuild(BuildPathConfig pathData, string[] scriptingDefines = null)
@@ -25,6 +25,8 @@ namespace BuildTool
             {
                 Directory.CreateDirectory(buildPath);
             }
+
+            PrePostProcessConfig.instance.OnPreProcessBuild(BuildTarget.Android);
 
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, Identification);
 

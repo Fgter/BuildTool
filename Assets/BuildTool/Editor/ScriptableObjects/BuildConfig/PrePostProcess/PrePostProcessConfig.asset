@@ -9,9 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f214324a8d92ca945a11665b371568e3, type: 3}
-  m_Name: AndroidBuildConfig_DEV
+  m_Script: {fileID: 11500000, guid: 11ff0fbf99b7fcb4da9f4cee03b42514, type: 3}
+  m_Name: PrePostProcessConfig
   m_EditorClassIdentifier: 
-  Identification: xxx.xxx.xxx
-  packageName: XXX_DEV
-  buildOptions: 257
+  androidPreMoveFileProcess: []
+  iosPreMoveFileProcess: []
+  iosPostMoveFileProcess: []
+  pcPreMoveFileProcess: []
+  pcPostMoveFileProcess: []
