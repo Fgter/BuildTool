@@ -31,14 +31,14 @@ namespace BuildTool
             path = absolutePath;
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("    {");
+            sb.AppendLine("        {");
 
             int number = 0;
             foreach (var e in config.allCustomMacros)
             {
                 if (!string.IsNullOrEmpty(e.ToString()))
                 {
-                    sb.AppendLine($"        {e} = {2 << number},");
+                    sb.AppendLine($"            {e} = 1 << {number},");
                     number++;
                 }
             }

@@ -10,8 +10,11 @@ namespace BuildTool
 
         [Flags]
         public enum CustomScriptingDefine
-    {
-        ORBIT_GM = 2,
+        {
+            ORBIT_GM = 1 << 0,
+            ORBIT_GMw = 1 << 1,
+            ORBIT_GMww = 1 << 2,
+            ORBIT_GMwww = 1 << 3,
         }
     }
 }
