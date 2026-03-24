@@ -9,729 +9,728 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using System.IO.Compression;
 using System.Collections.Generic;
-using System.Drawing.Text;
 
-public class BuildTool : EditorWindow
+namespace BuildTool
 {
-    public static string BuildWindowPath = "Assets/BuildTool/Editor/BuildWindow.uxml";
-    public static string BuildToolDataPath = "Assets/BuildTool/Editor/ScriptableObjects/BuildPersistentData/BuildToolPersistentData.asset";
-
-    public enum Platform
+    public class BuildTool : EditorWindow
     {
-        Android = 1,
-        IOS = 2,
-        PC = 4
-    }
-    public enum AfterBuildProcess
-    {
-        无,
-        仅压缩,
-        压缩并复制到公共盘
-    }
+        public static string BuildWindowPath = "Assets/BuildTool/Editor/BuildWindow.uxml";
+        public static string BuildToolDataPath = "Assets/BuildTool/Editor/ScriptableObjects/BuildPersistentData/BuildToolPersistentData.asset";
 
-    private BuildToolPersistentData data;
-
-    private ObjectField pathConfigField;
-    private ObjectField androidBuildConfigField;
-    private ObjectField iosBuildConfigField;
-    private ObjectField pcBuildConfigField;
-    private ObjectField assetbundleBuildConfigField;
-    private EnumFlagsField customScriptingDefineFiled;
-    private Toggle buildAssetBundleToggle;
-    private EnumField afterBuildProcessFiled;
-    private EnumField platform;
-    private TextField longVersionText;
-    private TextField shortVersionText;
-    private Toggle keepVersionToggle;
-    private Button switchPlatformBtn;
-    private Button buildBtn;
-
-    private Button testBtn;
-
-    private Platform platformEnum;
-    private bool inited = false;
-
-    private BuildPathConfig pathData { get => (pathConfigField.value as BuildPathConfig); }
-    private AndroidPlatformBuildConfig androidData { get => (androidBuildConfigField.value as AndroidPlatformBuildConfig); }
-    private IOSPlatformBuildConfig iosData { get => (iosBuildConfigField.value as IOSPlatformBuildConfig); }
-    private PCPlatformBuildConfig pcData { get => (pcBuildConfigField.value as PCPlatformBuildConfig); }
-    private AssetbundleBuildConfig assetbundleData { get => (assetbundleBuildConfigField.value as AssetbundleBuildConfig); }
-    private string[] scriptingDefines { get => ProcessScriptingDefine(); }
-
-    [MenuItem("打包工具/打开BuildWindow")]
-    #region UI
-    public static void OpenBuildWindow()
-    {
-        var window = GetWindow<BuildTool>();
-        window.titleContent = new GUIContent("打包");
-        window.minSize = new Vector2(520, 450);
-    }
-
-    private void CreateGUI()
-    {
-        var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(BuildWindowPath);
-        visualTree.CloneTree(rootVisualElement);
-        data = AssetDatabase.LoadAssetAtPath<BuildToolPersistentData>(BuildToolDataPath);
-
-        pathConfigField = rootVisualElement.Q<ObjectField>("BuildPathConfig");
-        androidBuildConfigField = rootVisualElement.Q<ObjectField>("AndroidBuildConfig");
-        iosBuildConfigField = rootVisualElement.Q<ObjectField>("IOSBuildConfig");
-        pcBuildConfigField = rootVisualElement.Q<ObjectField>("PCBuildConfig");
-        assetbundleBuildConfigField = rootVisualElement.Q<ObjectField>("AssetBundleConfig");
-        customScriptingDefineFiled = rootVisualElement.Q<EnumFlagsField>("CustomScriptingDefine");
-        afterBuildProcessFiled = rootVisualElement.Q<EnumField>("AutoCopyToRemoteFolder");
-        platform = rootVisualElement.Q<EnumField>("PlatformEnum");
-        longVersionText = rootVisualElement.Q<TextField>("LongVersion");
-        shortVersionText = rootVisualElement.Q<TextField>("ShortVersion");
-        keepVersionToggle = rootVisualElement.Q<Toggle>("KeepVersion");
-        switchPlatformBtn = rootVisualElement.Q<Button>("SwitchPlatformBtn");
-        buildBtn = rootVisualElement.Q<Button>("BuildBtn");
-        buildAssetBundleToggle = rootVisualElement.Q<Toggle>("BuildAssetBundle");
-        testBtn = rootVisualElement.Q<Button>("TestBtn");
-
-        RefreshUI();
-        AddListener();
-        inited = true;
-    }
-
-    private void RefreshUI()
-    {
-        Init();
-        RefreshDatas();
-        RefreshVersion();
-        //打包配置显示
-        androidBuildConfigField.style.display = DisplayStyle.None;
-        iosBuildConfigField.style.display = DisplayStyle.None;
-        pcBuildConfigField.style.display = DisplayStyle.None;
-        switch (platformEnum)
+        public enum Platform
         {
-            case Platform.Android:
-                androidBuildConfigField.style.display = DisplayStyle.Flex;
-                break;
-            case Platform.IOS:
-                iosBuildConfigField.style.display = DisplayStyle.Flex;
-                break;
-            case Platform.PC:
-                pcBuildConfigField.style.display = DisplayStyle.Flex;
-                break;
+            Android = 1,
+            IOS = 2,
+            PC = 4
         }
-        //打包按钮显示
-        buildBtn.SetEnabled(CheckPlatform());
-        //切换平台按钮显示
-        switchPlatformBtn.SetEnabled(!CheckPlatform());
-        assetbundleBuildConfigField.style.display = data.BuildAssetBundle ? DisplayStyle.Flex : DisplayStyle.None;
-    }
-
-    private void AddListener()
-    {
-        pathConfigField.RegisterValueChangedCallback(v => { data.BuildPathConfig = (BuildPathConfig)v.newValue; });
-        androidBuildConfigField.RegisterValueChangedCallback(v => { data.AndroidConfig = (AndroidPlatformBuildConfig)v.newValue; });
-        iosBuildConfigField.RegisterValueChangedCallback(v => { data.IOSConfig = (IOSPlatformBuildConfig)v.newValue; });
-        pcBuildConfigField.RegisterValueChangedCallback(v => { data.PCConfig = (PCPlatformBuildConfig)v.newValue; });
-        assetbundleBuildConfigField.RegisterValueChangedCallback(v => { data.assetbundleConfig = (AssetbundleBuildConfig)v.newValue; });
-        customScriptingDefineFiled.RegisterValueChangedCallback(v => { data.customScriptingDefines = (CustomScriptingDefineConfig.CustomScriptingDefine)v.newValue; });
-        longVersionText.RegisterValueChangedCallback(OnLongVersionChange);
-        shortVersionText.RegisterValueChangedCallback(OnShortVersionChange);
-        platform.RegisterValueChangedCallback(OnPlatformChange);
-        switchPlatformBtn.clicked += SwitchPlatform;
-        buildBtn.clicked += Build;
-        afterBuildProcessFiled.RegisterValueChangedCallback(v => { data.afterBuildProcess = (AfterBuildProcess)v.newValue; });
-        buildAssetBundleToggle.RegisterValueChangedCallback(v => { data.BuildAssetBundle = v.newValue; assetbundleBuildConfigField.style.display = v.newValue ? DisplayStyle.Flex : DisplayStyle.None; });
-        keepVersionToggle.RegisterValueChangedCallback(v => { data.keepVersion = v.newValue; });
-        testBtn.clicked += Test;
-    }
-
-    private void Init()
-    {
-        if (!inited)
+        public enum AfterBuildProcess
         {
-            //平台
-            switch (EditorUserBuildSettings.activeBuildTarget)
+            无,
+            仅压缩,
+            压缩并复制到公共盘
+        }
+
+        private BuildToolPersistentData data;
+
+        private ObjectField pathConfigField;
+        private ObjectField androidBuildConfigField;
+        private ObjectField iosBuildConfigField;
+        private ObjectField pcBuildConfigField;
+        private ObjectField assetbundleBuildConfigField;
+        private EnumFlagsField customScriptingDefineField;
+        private Toggle buildAssetBundleToggle;
+        private EnumField afterBuildProcessFiled;
+        private EnumField platformFiled;
+        private TextField longVersionText;
+        private TextField shortVersionText;
+        private Toggle keepVersionToggle;
+        private Button switchPlatformBtn;
+        private Button buildBtn;
+
+        private Button testBtn;
+
+        private Platform platform;
+        private bool inited = false;
+
+        private BuildPathConfig pathData { get => (pathConfigField.value as BuildPathConfig); }
+        private AndroidPlatformBuildConfig androidData { get => (androidBuildConfigField.value as AndroidPlatformBuildConfig); }
+        private IOSPlatformBuildConfig iosData { get => (iosBuildConfigField.value as IOSPlatformBuildConfig); }
+        private PCPlatformBuildConfig pcData { get => (pcBuildConfigField.value as PCPlatformBuildConfig); }
+        private AssetbundleBuildConfig assetbundleData { get => (assetbundleBuildConfigField.value as AssetbundleBuildConfig); }
+        private string[] scriptingDefines { get => ProcessScriptingDefine(); }
+
+        [MenuItem("打包工具/打开BuildWindow")]
+        #region UI
+        public static void OpenBuildWindow()
+        {
+            var window = GetWindow<BuildTool>();
+            window.titleContent = new GUIContent("打包");
+            window.minSize = new Vector2(520, 450);
+        }
+
+        private void CreateGUI()
+        {
+            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(BuildWindowPath);
+            visualTree.CloneTree(rootVisualElement);
+            data = AssetDatabase.LoadAssetAtPath<BuildToolPersistentData>(BuildToolDataPath);
+
+            pathConfigField = rootVisualElement.Q<ObjectField>("BuildPathConfig");
+            androidBuildConfigField = rootVisualElement.Q<ObjectField>("AndroidBuildConfig");
+            iosBuildConfigField = rootVisualElement.Q<ObjectField>("IOSBuildConfig");
+            pcBuildConfigField = rootVisualElement.Q<ObjectField>("PCBuildConfig");
+            assetbundleBuildConfigField = rootVisualElement.Q<ObjectField>("AssetBundleConfig");
+            customScriptingDefineField = rootVisualElement.Q<EnumFlagsField>("CustomScriptingDefine");
+            afterBuildProcessFiled = rootVisualElement.Q<EnumField>("AutoCopyToRemoteFolder");
+            platformFiled = rootVisualElement.Q<EnumField>("PlatformEnum");
+            longVersionText = rootVisualElement.Q<TextField>("LongVersion");
+            shortVersionText = rootVisualElement.Q<TextField>("ShortVersion");
+            keepVersionToggle = rootVisualElement.Q<Toggle>("KeepVersion");
+            switchPlatformBtn = rootVisualElement.Q<Button>("SwitchPlatformBtn");
+            buildBtn = rootVisualElement.Q<Button>("BuildBtn");
+            buildAssetBundleToggle = rootVisualElement.Q<Toggle>("BuildAssetBundle");
+            testBtn = rootVisualElement.Q<Button>("TestBtn");
+
+            RefreshUI();
+            AddListener();
+            inited = true;
+        }
+
+        private void RefreshUI()
+        {
+            Init();
+            RefreshDatas();
+            RefreshVersion();
+            //打包配置显示
+            androidBuildConfigField.style.display = DisplayStyle.None;
+            iosBuildConfigField.style.display = DisplayStyle.None;
+            pcBuildConfigField.style.display = DisplayStyle.None;
+            switch (platform)
             {
-                case BuildTarget.Android:
-                    platform.Init(Platform.Android);
-                    platformEnum = Platform.Android;
+                case Platform.Android:
+                    androidBuildConfigField.style.display = DisplayStyle.Flex;
                     break;
-                case BuildTarget.iOS:
-                    platform.Init(Platform.IOS);
-                    platformEnum = Platform.IOS;
+                case Platform.IOS:
+                    iosBuildConfigField.style.display = DisplayStyle.Flex;
                     break;
-                case BuildTarget.StandaloneWindows64:
-                    platform.Init(Platform.PC);
-                    platformEnum = Platform.PC;
-                    break;
-                default:
-                    platform.Init(Platform.Android);
-                    platformEnum = Platform.Android;
+                case Platform.PC:
+                    pcBuildConfigField.style.display = DisplayStyle.Flex;
                     break;
             }
+            //打包按钮显示
+            buildBtn.SetEnabled(CheckPlatform());
+            //切换平台按钮显示
+            switchPlatformBtn.SetEnabled(!CheckPlatform());
+            assetbundleBuildConfigField.style.display = data.BuildAssetBundle ? DisplayStyle.Flex : DisplayStyle.None;
         }
-        else
-            platform.Init(platformEnum);
-    }
 
-    private void RefreshVersion()
-    {
-        longVersionText.SetEnabled(platformEnum != Platform.PC);
-        shortVersionText.SetEnabled(platformEnum != Platform.PC);
-        keepVersionToggle.SetEnabled(platformEnum != Platform.PC);
-        //版本号
-        longVersionText.value = PlayerSettings.bundleVersion.ToString();
-        switch (platformEnum)
+        private void AddListener()
         {
-            case Platform.Android:
-                shortVersionText.value = PlayerSettings.Android.bundleVersionCode.ToString();//android内部版本号
-                break;
-            case Platform.IOS:
-                shortVersionText.value = PlayerSettings.iOS.buildNumber.ToString();
-                break;
-            case Platform.PC:
-                shortVersionText.value = "";
-                longVersionText.value = "";
-                break;
+            pathConfigField.RegisterValueChangedCallback(v => { data.BuildPathConfig = (BuildPathConfig)v.newValue; });
+            androidBuildConfigField.RegisterValueChangedCallback(v => { data.AndroidConfig = (AndroidPlatformBuildConfig)v.newValue; });
+            iosBuildConfigField.RegisterValueChangedCallback(v => { data.IOSConfig = (IOSPlatformBuildConfig)v.newValue; });
+            pcBuildConfigField.RegisterValueChangedCallback(v => { data.PCConfig = (PCPlatformBuildConfig)v.newValue; });
+            assetbundleBuildConfigField.RegisterValueChangedCallback(v => { data.assetbundleConfig = (AssetbundleBuildConfig)v.newValue; });
+            customScriptingDefineField.RegisterValueChangedCallback(v => { data.customScriptingDefines = (CustomScriptingDefineConfig.CustomScriptingDefine)v.newValue; });
+            longVersionText.RegisterValueChangedCallback(OnLongVersionChange);
+            shortVersionText.RegisterValueChangedCallback(OnShortVersionChange);
+            platformFiled.RegisterValueChangedCallback(OnPlatformChange);
+            switchPlatformBtn.clicked += SwitchPlatform;
+            buildBtn.clicked += Build;
+            afterBuildProcessFiled.RegisterValueChangedCallback(v => { data.afterBuildProcess = (AfterBuildProcess)v.newValue; });
+            buildAssetBundleToggle.RegisterValueChangedCallback(v => { data.BuildAssetBundle = v.newValue; assetbundleBuildConfigField.style.display = v.newValue ? DisplayStyle.Flex : DisplayStyle.None; });
+            keepVersionToggle.RegisterValueChangedCallback(v => { data.keepVersion = v.newValue; });
+            testBtn.clicked += Test;
         }
-    }
 
-    private void RefreshDatas()
-    {
-        pathConfigField.value = data.BuildPathConfig;
-        androidBuildConfigField.value = data.AndroidConfig;
-        iosBuildConfigField.value = data.IOSConfig;
-        pcBuildConfigField.value = data.PCConfig;
-        assetbundleBuildConfigField.value = data.assetbundleConfig;
-        customScriptingDefineFiled.value = data.customScriptingDefines;
-        afterBuildProcessFiled.value = data.afterBuildProcess;
-        buildAssetBundleToggle.value = data.BuildAssetBundle;
-        keepVersionToggle.value = data.keepVersion;
-    }
-    #endregion
-
-    #region ListenerMethods
-    private void OnPlatformChange(ChangeEvent<Enum> value)
-    {
-        platformEnum = (Platform)value.newValue;
-        RefreshUI();
-    }
-
-    private void OnLongVersionChange(ChangeEvent<string> value)
-    {
-        if (platformEnum == Platform.PC)
-            return;
-        PlayerSettings.bundleVersion = value.newValue;
-    }
-
-    private void OnShortVersionChange(ChangeEvent<string> value)
-    {
-        if (string.IsNullOrEmpty(value.newValue))
-            return;
-        var version = int.Parse(value.newValue);
-        switch (platformEnum)
+        private void Init()
         {
-            case Platform.Android:
-                PlayerSettings.Android.bundleVersionCode = version;//android内部版本号
-                break;
-            case Platform.IOS:
-                PlayerSettings.iOS.buildNumber = version.ToString();//ios内部版本号
-                break;
-        }
-    }
-    #endregion
-
-    #region IncreaseVersion & SwitchPlatform Methods
-    private void IncreaseVersion()
-    {
-        if (platformEnum == Platform.PC)
-            return;
-        if (!keepVersionToggle.value)
-        {
-            try
+            if (!inited)
             {
-                string version = PlayerSettings.bundleVersion;//通用版本号
-                string[] versionList = version.Split(new char[] { '.' });
-                string nowLittleVersion = versionList[versionList.Length - 1];
-                string newLittleVersion = (int.Parse(nowLittleVersion) + 1).ToString();
-                versionList[versionList.Length - 1] = newLittleVersion;
-                string newLongVersion = string.Join(".", versionList);
-                PlayerSettings.bundleVersion = newLongVersion;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("解析版本号失败:" + e);
-            }
-        }
-
-        switch (platformEnum)//平台版本号
-        {
-            case Platform.Android:
-                PlayerSettings.Android.bundleVersionCode = PlayerSettings.Android.bundleVersionCode + 1;
-                break;
-            case Platform.IOS:
-                PlayerSettings.iOS.buildNumber = (int.Parse(PlayerSettings.iOS.buildNumber) + 1).ToString();
-                break;
-        }
-        RefreshVersion();
-
-        AssetDatabase.Refresh();
-        EditorApplication.ExecuteMenuItem("File/Save Project");
-    }
-
-    private void SwitchPlatform()
-    {
-
-        switch (platformEnum)
-        {
-            case Platform.Android:
-                SwitchToPlatform(BuildTarget.Android);
-                break;
-            case Platform.IOS:
-                SwitchToPlatform(BuildTarget.iOS);
-                break;
-            case Platform.PC:
-                SwitchToPlatform(BuildTarget.StandaloneWindows64);
-                break;
-            default:
-                EditorUtility.DisplayDialog("提示", "切换平台方法中没有设置对应平台,请在BuildTool中设置后再次切换", "确定");
-                break;
-        }
-    }
-    #endregion
-
-    #region Build
-    #region BuildMethods
-    private void Build()
-    {
-        if (!CheckPlatform())
-        {
-            EditorUtility.DisplayDialog("平台切换", "请切换至对应平台再次打包", "确定");
-            return;
-        }
-
-        if (buildAssetBundleToggle.value)
-        {
-            if (!BuildAssetBundels())
-            {
-                EditorUtility.DisplayDialog("提示", "打包AssetBundle时出错", "确定");
-                return;
-            }
-        }
-
-        AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-        IncreaseVersion();
-        switch (platformEnum)
-        {
-            case Platform.Android:
-                OnBuild_Android(); break;
-            case Platform.IOS:
-                OnBuild_IOS(); break;
-            case Platform.PC:
-                OnBuild_PC(); break;
-            default:
-                OnBuild_Android();
-                break;
-        }
-    }
-
-    private void OnBuild_Android()
-    {
-        if (BuildAndroid())
-        {
-            string localPath = pathData.AndroidLocalBuildPath;
-            string remotePath = pathData.AndroidRemoteBuildPath;
-
-            var afterBuildProcess = (AfterBuildProcess)(afterBuildProcessFiled.value);
-            if (afterBuildProcess == AfterBuildProcess.无)
-            {
-                Process.Start("Explorer.exe", localPath);
-                return;
-            }
-
-            string file = FindLatestFile(localPath);
-            switch (afterBuildProcess)
-            {
-                case AfterBuildProcess.仅压缩:
-                    Process.Start("Explorer.exe", localPath);
-                    break;
-                case AfterBuildProcess.压缩并复制到公共盘:
-                    try
-                    {
-                        if (string.IsNullOrEmpty(remotePath))
-                            throw new Exception("公共盘地址为空");
-                        CopyFile(Path.Combine(localPath, file), Path.Combine(remotePath, file));
-                        Process.Start("Explorer.exe", remotePath);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogError(ex);
-                        Process.Start("Explorer.exe", localPath);
-                    }
-
-                    break;
-                default:
-                    break;
-            }
-        }
-
-    }
-
-    private void OnBuild_IOS()
-    {
-        if (BuildIOS())
-        {
-            string localPath = pathData.IOSLocalBuildPath;
-            string remotePath = pathData.IOSRemoteBuildPath;
-
-            var afterBuildProcess = (AfterBuildProcess)(afterBuildProcessFiled.value);
-            if (afterBuildProcess == AfterBuildProcess.无)
-            {
-                Process.Start("Explorer.exe", localPath);
-                return;
-            }
-
-            string file = FindLatestFile(localPath);
-            switch (afterBuildProcess)
-            {
-                case AfterBuildProcess.仅压缩:
-                    CompressFolder(Path.Combine(localPath, file), Path.Combine(localPath, file));
-                    Process.Start("Explorer.exe", localPath);
-                    break;
-                case AfterBuildProcess.压缩并复制到公共盘:
-                    CompressFolder(Path.Combine(localPath, file), Path.Combine(localPath, file));
-                    file = FindLatestFile(localPath);
-                    try
-                    {
-                        if (string.IsNullOrEmpty(remotePath))
-                            throw new Exception("公共盘地址为空");
-                        File.Move(Path.Combine(localPath, file), Path.Combine(remotePath, file));
-                        Process.Start("Explorer.exe", remotePath);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogError(ex);
-                        Process.Start("Explorer.exe", localPath);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    private void OnBuild_PC()
-    {
-        if (BuildPC())
-        {
-            string localPath = pathData.PCLocalBuildPath;
-            string remotePath = pathData.PCRemoteBuildPath;
-
-            var afterBuildProcess = (AfterBuildProcess)(afterBuildProcessFiled.value);
-            if (afterBuildProcess == AfterBuildProcess.无)
-            {
-                Process.Start("Explorer.exe", localPath);
-                return;
-            }
-
-            string file = FindLatestFile(localPath);
-            switch (afterBuildProcess)
-            {
-                case AfterBuildProcess.仅压缩:
-                    CompressFolder(Path.Combine(localPath, file), Path.Combine(localPath, file));
-                    Process.Start("Explorer.exe", localPath);
-                    break;
-                case AfterBuildProcess.压缩并复制到公共盘:
-                    CompressFolder(Path.Combine(localPath, file), Path.Combine(localPath, file));
-                    file = FindLatestFile(localPath);
-                    try
-                    {
-                        if (string.IsNullOrEmpty(remotePath))
-                            throw new Exception("公共盘地址为空");
-                        File.Move(Path.Combine(localPath, file), Path.Combine(remotePath, file));
-                        Process.Start("Explorer.exe", remotePath);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogError(ex);
-                        Process.Start("Explorer.exe", localPath);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-    #endregion
-
-    #region PlatformCustom
-    private bool BuildAndroid()
-    {
-        if (androidData == null || pathData == null)
-        {
-            EditorUtility.DisplayDialog("提示", "路径配置或当前平台打包配置为空,请设置后再打包", "确定");
-            return false;
-        }
-        return androidData.OnBuild(pathData, scriptingDefines);
-    }
-
-    private bool BuildIOS()
-    {
-        if (iosData == null || pathData == null)
-        {
-            EditorUtility.DisplayDialog("提示", "路径配置或当前平台打包配置为空,请设置后再打包", "确定");
-            return false;
-        }
-        return iosData.OnBuild(pathData, scriptingDefines);
-    }
-
-    private bool BuildPC()
-    {
-        if (pcData == null || pathData == null)
-        {
-            EditorUtility.DisplayDialog("提示", "路径配置或当前平台打包配置为空,请设置后再打包", "确定");
-            return false;
-        }
-        return pcData.OnBuild(pathData, scriptingDefines);
-    }
-
-    private bool BuildAssetBundels()
-    {
-        return assetbundleData.OnBuild(platformEnum);
-    }
-
-    #endregion
-    #endregion
-
-    #region UtilityMethods
-    private static void SwitchToPlatform(BuildTarget target)
-    {
-        if (EditorUserBuildSettings.activeBuildTarget != target)
-        {
-            try
-            {
-                BuildTargetGroup targetGroup = BuildPipeline.GetBuildTargetGroup(target);
-
-                if (EditorUserBuildSettings.SwitchActiveBuildTarget(targetGroup, target))
+                //平台
+                switch (EditorUserBuildSettings.activeBuildTarget)
                 {
-                    Debug.Log($"切换平台:切换目标平台成功{target}");
+                    case BuildTarget.Android:
+                        platformFiled.Init(Platform.Android);
+                        platform = Platform.Android;
+                        break;
+                    case BuildTarget.iOS:
+                        platformFiled.Init(Platform.IOS);
+                        platform = Platform.IOS;
+                        break;
+                    case BuildTarget.StandaloneWindows64:
+                        platformFiled.Init(Platform.PC);
+                        platform = Platform.PC;
+                        break;
+                    default:
+                        platformFiled.Init(Platform.Android);
+                        platform = Platform.Android;
+                        break;
+                }
+            }
+            else
+                platformFiled.Init(platform);
+            afterBuildProcessFiled.Init(data.afterBuildProcess);
+        }
+
+        private void RefreshVersion()
+        {
+            longVersionText.SetEnabled(platform != Platform.PC);
+            shortVersionText.SetEnabled(platform != Platform.PC);
+            keepVersionToggle.SetEnabled(platform != Platform.PC);
+            //版本号
+            longVersionText.value = PlayerSettings.bundleVersion.ToString();
+            switch (platform)
+            {
+                case Platform.Android:
+                    shortVersionText.value = PlayerSettings.Android.bundleVersionCode.ToString();//android内部版本号
+                    break;
+                case Platform.IOS:
+                    shortVersionText.value = PlayerSettings.iOS.buildNumber.ToString();
+                    break;
+                case Platform.PC:
+                    shortVersionText.value = "";
+                    longVersionText.value = "";
+                    break;
+            }
+        }
+
+        private void RefreshDatas()
+        {
+            pathConfigField.value = data.BuildPathConfig;
+            androidBuildConfigField.value = data.AndroidConfig;
+            iosBuildConfigField.value = data.IOSConfig;
+            pcBuildConfigField.value = data.PCConfig;
+            assetbundleBuildConfigField.value = data.assetbundleConfig;
+            customScriptingDefineField.Init(data.customScriptingDefines);
+            afterBuildProcessFiled.Init(data.afterBuildProcess);
+            buildAssetBundleToggle.value = data.BuildAssetBundle;
+            keepVersionToggle.value = data.keepVersion;
+        }
+        #endregion
+
+        #region ListenerMethods
+        private void OnPlatformChange(ChangeEvent<Enum> value)
+        {
+            platform = (Platform)value.newValue;
+            RefreshUI();
+        }
+
+        private void OnLongVersionChange(ChangeEvent<string> value)
+        {
+            if (platform == Platform.PC)
+                return;
+            PlayerSettings.bundleVersion = value.newValue;
+        }
+
+        private void OnShortVersionChange(ChangeEvent<string> value)
+        {
+            if (string.IsNullOrEmpty(value.newValue))
+                return;
+            var version = int.Parse(value.newValue);
+            switch (platform)
+            {
+                case Platform.Android:
+                    PlayerSettings.Android.bundleVersionCode = version;//android内部版本号
+                    break;
+                case Platform.IOS:
+                    PlayerSettings.iOS.buildNumber = version.ToString();//ios内部版本号
+                    break;
+            }
+        }
+        #endregion
+
+        #region IncreaseVersion & SwitchPlatform Methods
+        private void IncreaseVersion()
+        {
+            if (platform == Platform.PC)
+                return;
+            if (!keepVersionToggle.value)
+            {
+                try
+                {
+                    string version = PlayerSettings.bundleVersion;//通用版本号
+                    string[] versionList = version.Split(new char[] { '.' });
+                    string nowLittleVersion = versionList[versionList.Length - 1];
+                    string newLittleVersion = (int.Parse(nowLittleVersion) + 1).ToString();
+                    versionList[versionList.Length - 1] = newLittleVersion;
+                    string newLongVersion = string.Join(".", versionList);
+                    PlayerSettings.bundleVersion = newLongVersion;
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("解析版本号失败:" + e);
+                }
+            }
+
+            switch (platform)//平台版本号
+            {
+                case Platform.Android:
+                    PlayerSettings.Android.bundleVersionCode = PlayerSettings.Android.bundleVersionCode + 1;
+                    break;
+                case Platform.IOS:
+                    PlayerSettings.iOS.buildNumber = (int.Parse(PlayerSettings.iOS.buildNumber) + 1).ToString();
+                    break;
+            }
+            RefreshVersion();
+
+            AssetDatabase.Refresh();
+            EditorApplication.ExecuteMenuItem("File/Save Project");
+        }
+
+        private void SwitchPlatform()
+        {
+
+            switch (platform)
+            {
+                case Platform.Android:
+                    SwitchToPlatform(BuildTarget.Android);
+                    break;
+                case Platform.IOS:
+                    SwitchToPlatform(BuildTarget.iOS);
+                    break;
+                case Platform.PC:
+                    SwitchToPlatform(BuildTarget.StandaloneWindows64);
+                    break;
+                default:
+                    EditorUtility.DisplayDialog("提示", "切换平台方法中没有设置对应平台,请在BuildTool中设置后再次切换", "确定");
+                    break;
+            }
+        }
+        #endregion
+
+        #region Build
+        #region BuildMethods
+        private void Build()
+        {
+            if (!CheckPlatform())
+            {
+                EditorUtility.DisplayDialog("平台切换", "请切换至对应平台再次打包", "确定");
+                return;
+            }
+
+            if (buildAssetBundleToggle.value)
+            {
+                if (!BuildAssetBundels())
+                {
+                    EditorUtility.DisplayDialog("提示", "打包AssetBundle时出错", "确定");
+                    return;
+                }
+            }
+
+            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+            IncreaseVersion();
+            switch (platform)
+            {
+                case Platform.Android:
+                    OnBuild_Android(); break;
+                case Platform.IOS:
+                    OnBuild_IOS(); break;
+                case Platform.PC:
+                    OnBuild_PC(); break;
+                default:
+                    OnBuild_Android();
+                    break;
+            }
+        }
+
+        private void OnBuild_Android()
+        {
+            if (BuildAndroid())
+            {
+                string localPath = pathData.AndroidLocalBuildPath;
+                string remotePath = pathData.AndroidRemoteBuildPath;
+
+                var afterBuildProcess = (AfterBuildProcess)(afterBuildProcessFiled.value);
+                if (afterBuildProcess == AfterBuildProcess.无)
+                {
+                    Process.Start("Explorer.exe", localPath);
+                    return;
+                }
+
+                string file = FindLatestFile(localPath);
+                switch (afterBuildProcess)
+                {
+                    case AfterBuildProcess.仅压缩:
+                        Process.Start("Explorer.exe", localPath);
+                        break;
+                    case AfterBuildProcess.压缩并复制到公共盘:
+                        try
+                        {
+                            if (string.IsNullOrEmpty(remotePath))
+                                throw new Exception("公共盘地址为空");
+                            CopyFile(Path.Combine(localPath, file), Path.Combine(remotePath, file));
+                            Process.Start("Explorer.exe", remotePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError(ex);
+                            Process.Start("Explorer.exe", localPath);
+                        }
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+        }
+
+        private void OnBuild_IOS()
+        {
+            if (BuildIOS())
+            {
+                string localPath = pathData.IOSLocalBuildPath;
+                string remotePath = pathData.IOSRemoteBuildPath;
+
+                var afterBuildProcess = (AfterBuildProcess)(afterBuildProcessFiled.value);
+                if (afterBuildProcess == AfterBuildProcess.无)
+                {
+                    Process.Start("Explorer.exe", localPath);
+                    return;
+                }
+
+                string file = FindLatestFile(localPath);
+                switch (afterBuildProcess)
+                {
+                    case AfterBuildProcess.仅压缩:
+                        CompressFolder(Path.Combine(localPath, file), Path.Combine(localPath, file));
+                        Process.Start("Explorer.exe", localPath);
+                        break;
+                    case AfterBuildProcess.压缩并复制到公共盘:
+                        CompressFolder(Path.Combine(localPath, file), Path.Combine(localPath, file));
+                        file = FindLatestFile(localPath);
+                        try
+                        {
+                            if (string.IsNullOrEmpty(remotePath))
+                                throw new Exception("公共盘地址为空");
+                            File.Move(Path.Combine(localPath, file), Path.Combine(remotePath, file));
+                            Process.Start("Explorer.exe", remotePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError(ex);
+                            Process.Start("Explorer.exe", localPath);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private void OnBuild_PC()
+        {
+            if (BuildPC())
+            {
+                string localPath = pathData.PCLocalBuildPath;
+                string remotePath = pathData.PCRemoteBuildPath;
+
+                var afterBuildProcess = (AfterBuildProcess)(afterBuildProcessFiled.value);
+                if (afterBuildProcess == AfterBuildProcess.无)
+                {
+                    Process.Start("Explorer.exe", localPath);
+                    return;
+                }
+
+                string file = FindLatestFile(localPath);
+                switch (afterBuildProcess)
+                {
+                    case AfterBuildProcess.仅压缩:
+                        CompressFolder(Path.Combine(localPath, file), Path.Combine(localPath, file));
+                        Process.Start("Explorer.exe", localPath);
+                        break;
+                    case AfterBuildProcess.压缩并复制到公共盘:
+                        CompressFolder(Path.Combine(localPath, file), Path.Combine(localPath, file));
+                        file = FindLatestFile(localPath);
+                        try
+                        {
+                            if (string.IsNullOrEmpty(remotePath))
+                                throw new Exception("公共盘地址为空");
+                            File.Move(Path.Combine(localPath, file), Path.Combine(remotePath, file));
+                            Process.Start("Explorer.exe", remotePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError(ex);
+                            Process.Start("Explorer.exe", localPath);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        #endregion
+
+        #region PlatformCustom
+        private bool BuildAndroid()
+        {
+            if (androidData == null || pathData == null)
+            {
+                EditorUtility.DisplayDialog("提示", "路径配置或当前平台打包配置为空,请设置后再打包", "确定");
+                return false;
+            }
+            return androidData.OnBuild(pathData, scriptingDefines);
+        }
+
+        private bool BuildIOS()
+        {
+            if (iosData == null || pathData == null)
+            {
+                EditorUtility.DisplayDialog("提示", "路径配置或当前平台打包配置为空,请设置后再打包", "确定");
+                return false;
+            }
+            return iosData.OnBuild(pathData, scriptingDefines);
+        }
+
+        private bool BuildPC()
+        {
+            if (pcData == null || pathData == null)
+            {
+                EditorUtility.DisplayDialog("提示", "路径配置或当前平台打包配置为空,请设置后再打包", "确定");
+                return false;
+            }
+            return pcData.OnBuild(pathData, scriptingDefines);
+        }
+
+        private bool BuildAssetBundels()
+        {
+            return assetbundleData.OnBuild(platform);
+        }
+
+        #endregion
+        #endregion
+
+        #region UtilityMethods
+        private static void SwitchToPlatform(BuildTarget target)
+        {
+            if (EditorUserBuildSettings.activeBuildTarget != target)
+            {
+                try
+                {
+                    BuildTargetGroup targetGroup = BuildPipeline.GetBuildTargetGroup(target);
+
+                    if (EditorUserBuildSettings.SwitchActiveBuildTarget(targetGroup, target))
+                    {
+                        Debug.Log($"切换平台:切换目标平台成功{target}");
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog("平台切换", $"切换到 {target} 平台失败", "确定");
+                    }
+                }
+                catch (Exception e)
+                {
+                    EditorUtility.DisplayDialog("错误", $"切换平台时发生错误: {e.Message}", "确定");
+                }
+            }
+            else
+            {
+                Debug.Log($"切换平台:已是目标平台{target}");
+            }
+        }
+
+        private bool CheckPlatform()
+        {
+            bool result = false;
+            switch (platform)
+            {
+                case Platform.Android:
+                    result = EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android;
+                    break;
+                case Platform.IOS:
+                    result = EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS;
+                    break;
+                case Platform.PC:
+                    result = EditorUserBuildSettings.activeBuildTarget == BuildTarget.StandaloneWindows64;
+                    break;
+                default:
+                    result = EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android;
+                    break;
+            }
+            return result;
+        }
+
+        private string[] ProcessScriptingDefine()
+        {
+            var sds = customScriptingDefineField.value.ToString();
+            List<string> sdList = new List<string>();
+            if (sds == "0")
+                return null;
+            else if (sds == "-1")
+            {
+                foreach (var e in Enum.GetValues(customScriptingDefineField.value.GetType()))
+                {
+                    sdList.Add(e.ToString());
+                }
+            }
+            else
+                sdList.AddRange(sds.Split(','));
+
+            return sdList.ToArray();
+        }
+
+        private static bool ExecuteShellScript(string shellName)
+        {
+            //tip:Program Files\Git\bin文件夹需在C盘
+            ProcessStartInfo psi = new ProcessStartInfo();
+
+            string rootPath = Application.dataPath.Replace("/Assets", "");
+            psi.FileName = "bash";
+            psi.Arguments = $"-c \"{rootPath}/{shellName}.sh\"";
+
+
+            psi.UseShellExecute = false;
+            psi.RedirectStandardOutput = true;
+            psi.RedirectStandardError = true;
+            psi.CreateNoWindow = true;
+
+            try
+            {
+                Process process = new Process();
+                process.StartInfo = psi;
+                process.Start();
+
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
+
+                process.WaitForExit();
+                int exitCode = process.ExitCode;
+
+                Debug.Log($"SVNUpdate脚本输出: {output}");
+                if (!string.IsNullOrEmpty(error))
+                    Debug.LogError($"错误信息: {error}");
+
+                // 根据退出代码处理结果
+                if (exitCode == 0)
+                {
+                    EditorUtility.DisplayDialog("提示", "svn更新成功", "确定");
+                    return true;
                 }
                 else
                 {
-                    EditorUtility.DisplayDialog("平台切换", $"切换到 {target} 平台失败", "确定");
+                    EditorUtility.DisplayDialog("提示", "svn更新失败,请检查相关错误", "确定");
+                    return false;
                 }
             }
-            catch (Exception e)
+            catch (System.Exception e)
             {
-                EditorUtility.DisplayDialog("错误", $"切换平台时发生错误: {e.Message}", "确定");
-            }
-        }
-        else
-        {
-            Debug.Log($"切换平台:已是目标平台{target}");
-        }
-    }
-
-    private bool CheckPlatform()
-    {
-        bool result = false;
-        switch (platformEnum)
-        {
-            case Platform.Android:
-                result = EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android;
-                break;
-            case Platform.IOS:
-                result = EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS;
-                break;
-            case Platform.PC:
-                result = EditorUserBuildSettings.activeBuildTarget == BuildTarget.StandaloneWindows64;
-                break;
-            default:
-                result = EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android;
-                break;
-        }
-        return result;
-    }
-
-    private string[] ProcessScriptingDefine()
-    {
-        var sds = customScriptingDefineFiled.value.ToString();
-        List<string> sdList = new List<string>();
-        if (sds == "0")
-            return null;
-        else if (sds == "-1")
-        {
-            foreach (var e in Enum.GetValues(customScriptingDefineFiled.value.GetType()))
-            {
-                sdList.Add(e.ToString());
-            }
-        }
-        else
-            sdList.AddRange(sds.Split(','));
-
-        return sdList.ToArray();
-    }
-
-    private static bool ExecuteShellScript(string shellName)
-    {
-        //tip:Program Files\Git\bin文件夹需在C盘
-        ProcessStartInfo psi = new ProcessStartInfo();
-
-        string rootPath = Application.dataPath.Replace("/Assets", "");
-        psi.FileName = "bash";
-        psi.Arguments = $"-c \"{rootPath}/{shellName}.sh\"";
-
-
-        psi.UseShellExecute = false;
-        psi.RedirectStandardOutput = true;
-        psi.RedirectStandardError = true;
-        psi.CreateNoWindow = true;
-
-        try
-        {
-            Process process = new Process();
-            process.StartInfo = psi;
-            process.Start();
-
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-
-            process.WaitForExit();
-            int exitCode = process.ExitCode;
-
-            Debug.Log($"SVNUpdate脚本输出: {output}");
-            if (!string.IsNullOrEmpty(error))
-                Debug.LogError($"错误信息: {error}");
-
-            // 根据退出代码处理结果
-            if (exitCode == 0)
-            {
-                EditorUtility.DisplayDialog("提示", "svn更新成功", "确定");
-                return true;
-            }
-            else
-            {
-                EditorUtility.DisplayDialog("提示", "svn更新失败,请检查相关错误", "确定");
+                EditorUtility.DisplayDialog("错误", e.Message, "确定");
+                Debug.LogError($"执行脚本失败: {e.Message}");
                 return false;
             }
         }
-        catch (System.Exception e)
+
+        public static void CompressFolder(string sourcePath, string destinationPath)
         {
-            EditorUtility.DisplayDialog("错误", e.Message, "确定");
-            Debug.LogError($"执行脚本失败: {e.Message}");
-            return false;
+            destinationPath = destinationPath + ".zip";
+            ZipFile.CreateFromDirectory(sourcePath, destinationPath, System.IO.Compression.CompressionLevel.Fastest, false);
         }
-    }
 
-    public static void CompressFolder(string sourcePath, string destinationPath)
-    {
-        destinationPath = destinationPath + ".zip";
-        ZipFile.CreateFromDirectory(sourcePath, destinationPath, System.IO.Compression.CompressionLevel.Fastest, false);
-    }
-
-    public static void CopyFile(string sourcePath, string destinationPath)
-    {
-        try
+        public static void CopyFile(string sourcePath, string destinationPath)
         {
-            if (!File.Exists(sourcePath))
-            {
-                Debug.LogError($"打包文件不存在{sourcePath}");
-                EditorUtility.DisplayDialog("错误", $"打包文件不存在{sourcePath}", "确定");
-                return;
-            }
-
-            string directory = Path.GetDirectoryName(destinationPath);
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            File.Copy(sourcePath, destinationPath, true);
-            Debug.Log($"文件已复制: {sourcePath} -> {destinationPath}");
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"复制文件时出错{ex.Message}");
-            EditorUtility.DisplayDialog("错误", $"复制文件时出错{ex.Message}", "确定");
-        }
-    }
-
-    public static string FindLatestFile(string path)
-    {
-        if (!Directory.Exists(path))
-            throw new DirectoryNotFoundException($"目录不存在: {path}");
-
-        var stopwatch = Stopwatch.StartNew();
-
-        try
-        {
-            DirectoryInfo dir = new DirectoryInfo(path);
-
-            FileInfo[] files = new FileInfo[0];
-            DirectoryInfo[] dirInfos = new DirectoryInfo[0];
             try
             {
-                files = dir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
-                dirInfos = dir.GetDirectories("*.*", SearchOption.TopDirectoryOnly);
+                if (!File.Exists(sourcePath))
+                {
+                    Debug.LogError($"打包文件不存在{sourcePath}");
+                    EditorUtility.DisplayDialog("错误", $"打包文件不存在{sourcePath}", "确定");
+                    return;
+                }
+
+                string directory = Path.GetDirectoryName(destinationPath);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                File.Copy(sourcePath, destinationPath, true);
+                Debug.Log($"文件已复制: {sourcePath} -> {destinationPath}");
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception ex)
             {
-                Debug.LogError("无权访问目录");
+                Debug.LogError($"复制文件时出错{ex.Message}");
+                EditorUtility.DisplayDialog("错误", $"复制文件时出错{ex.Message}", "确定");
             }
+        }
+
+        public static string FindLatestFile(string path)
+        {
+            if (!Directory.Exists(path))
+                throw new DirectoryNotFoundException($"目录不存在: {path}");
+
+            try
+            {
+                DirectoryInfo dir = new DirectoryInfo(path);
+
+                FileInfo[] files = new FileInfo[0];
+                DirectoryInfo[] dirInfos = new DirectoryInfo[0];
+                try
+                {
+                    files = dir.GetFiles("*.*", SearchOption.TopDirectoryOnly);
+                    dirInfos = dir.GetDirectories("*.*", SearchOption.TopDirectoryOnly);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    Debug.LogError("无权访问目录");
+                }
 
 
-            if (files.Length == 0 && dirInfos.Length == 0)
+                if (files.Length == 0 && dirInfos.Length == 0)
+                {
+                    Debug.Log($"目录为空{path}");
+                    return null;
+                }
+
+                var latestFile = files
+                    .OrderByDescending(f => f.LastWriteTimeUtc)
+                    .FirstOrDefault();
+                var latestDirectory = dirInfos
+                    .OrderByDescending(f => f.LastWriteTimeUtc)
+                    .FirstOrDefault();
+                string lastestName;
+                if (latestFile == null)
+                    lastestName = latestDirectory.Name;
+                else if (latestDirectory == null)
+                    lastestName = latestFile.Name;
+                else
+                    lastestName = latestFile.LastWriteTimeUtc > latestDirectory?.LastWriteTimeUtc ? latestFile.Name : latestDirectory.Name;
+
+                if (lastestName != null)
+                {
+                    Debug.Log($"最新包体: {lastestName}");
+                }
+
+                return lastestName;
+            }
+            catch (Exception ex)
             {
-                Debug.Log($"目录为空{path}");
+                Debug.LogError($"扫描失败: {ex.Message}");
                 return null;
             }
+        }
+        #endregion
 
-            var latestFile = files
-                .OrderByDescending(f => f.LastWriteTimeUtc)
-                .FirstOrDefault();
-            var latestDirectory = dirInfos
-                .OrderByDescending(f => f.LastWriteTimeUtc)
-                .FirstOrDefault();
-            string lastestName;
-            if (latestFile == null)
-                lastestName = latestDirectory.Name;
-            else if (latestDirectory == null)
-                lastestName = latestFile.Name;
+        public void Test()
+        {
+            var sds = customScriptingDefineField.value.ToString();
+            List<string> sdList = new List<string>();
+            if (sds == "0")
+                return;
+            else if (sds == "-1")
+            {
+                foreach (var e in Enum.GetValues(customScriptingDefineField.value.GetType()))
+                {
+                    sdList.Add(e.ToString());
+                }
+            }
             else
-                lastestName = latestFile.LastWriteTimeUtc > latestDirectory?.LastWriteTimeUtc ? latestFile.Name : latestDirectory.Name;
+                sdList.AddRange(sds.Split(','));
 
-            stopwatch.Stop();
-
-            if (lastestName != null)
+            foreach (var e in sdList)
             {
-                Debug.Log($"最新包体: {lastestName}");
+                Debug.Log($"{e}");
             }
-
-            return lastestName;
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"扫描失败: {ex.Message}");
-            return null;
-        }
-    }
-    #endregion
-
-    public void Test()
-    {
-        var sds = customScriptingDefineFiled.value.ToString();
-        List<string> sdList = new List<string>();
-        if (sds == "0")
-            return;
-        else if (sds == "-1")
-        {
-            foreach (var e in Enum.GetValues(customScriptingDefineFiled.value.GetType()))
-            {
-                sdList.Add(e.ToString());
-            }
-        }
-        else
-            sdList.AddRange(sds.Split(','));
-
-        foreach (var e in sdList)
-        {
-            Debug.Log($"{e}");
         }
     }
 }

@@ -2,28 +2,31 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public abstract class PlatformBuildConfigBase : ScriptableObject
+namespace BuildTool
 {
-    [Header("签名包名")]
-    public string Identification;
-    [Header("外显包名")]
-    public string packageName;
-
-    public BuildOptions buildOptions = BuildOptions.None;
-    public abstract bool OnBuild(BuildPathConfig pathData, string[] scriptingDefines = null);
-
-    protected static List<string> GetBuildScenes()
+    public abstract class PlatformBuildConfigBase : ScriptableObject
     {
-        var scenes = EditorBuildSettings.scenes;
-        List<string> sceneNames = new List<string>();
-        foreach (var scene in scenes)
-        {
-            if (scene.enabled)
-            {
-                sceneNames.Add(scene.path);
-            }
-        }
+        [Header("签名包名")]
+        public string Identification;
+        [Header("外显包名")]
+        public string packageName;
 
-        return sceneNames;
+        public BuildOptions buildOptions = BuildOptions.None;
+        public abstract bool OnBuild(BuildPathConfig pathData, string[] scriptingDefines = null);
+
+        protected static List<string> GetBuildScenes()
+        {
+            var scenes = EditorBuildSettings.scenes;
+            List<string> sceneNames = new List<string>();
+            foreach (var scene in scenes)
+            {
+                if (scene.enabled)
+                {
+                    sceneNames.Add(scene.path);
+                }
+            }
+
+            return sceneNames;
+        }
     }
 }

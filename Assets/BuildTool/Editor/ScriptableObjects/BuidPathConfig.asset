@@ -18,7 +18,7 @@ MonoBehaviour:
   IOSRemoteBuildPath: 
   PCLocalBuildPath: E:\UnityProjects\BuildTool\Builds\PCBuilds
   PCRemoteBuildPath: 
-  keyStorePath: 
+  keyStorePath: E:\UnityProjects\BuildTool\KeyStore\
   keyStorePassword: 
   keyaliasName: 
   keyaliasPassword: 

@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbd696624732a7245aa30d8fd4c2c337, type: 3}
   m_Name: CustomScriptingDefineConfig
   m_EditorClassIdentifier: 
-  enableAutoCompile: 0
   allCustomMacros:
   - ORBIT_GM
+  - WWWW

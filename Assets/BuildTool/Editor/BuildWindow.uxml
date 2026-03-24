@@ -1,14 +1,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <ui:VisualElement style="flex-grow: 1; width: 500px; height: 500px; position: relative; background-color: rgba(255, 255, 255, 0); justify-content: flex-start; align-self: center;">
-        <uie:ObjectField label="打包路径配置" type="BuildPathConfig, Assembly-CSharp-Editor" name="BuildPathConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; position: relative; font-size: 16px;" />
+        <uie:ObjectField label="打包路径配置" type="BuildTool.BuildPathConfig, Assembly-CSharp-Editor" name="BuildPathConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; position: relative; font-size: 16px;" />
         <uie:EnumField label="平台" value="打" name="PlatformEnum" include-obsolete-values="false" style="font-size: 16px;" />
         <ui:VisualElement name="configs">
             <ui:Button text="切换至对应平台" enabled="true" name="SwitchPlatformBtn" style="width: 200px; font-size: 20px; align-self: center; margin-bottom: 12px;" />
-            <uie:ObjectField label="打包配置" type="AndroidPlatformBuildConfig, Assembly-CSharp-Editor" name="AndroidBuildConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; position: relative; font-size: 16px;" />
-            <uie:ObjectField label="打包配置" type="IOSPlatformBuildConfig, Assembly-CSharp-Editor" name="IOSBuildConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; position: relative; font-size: 16px;" />
-            <uie:ObjectField label="打包配置" type="PCPlatformBuildConfig, Assembly-CSharp-Editor" name="PCBuildConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; font-size: 16px;" />
+            <uie:ObjectField label="打包配置" type="BuildTool.AndroidPlatformBuildConfig, Assembly-CSharp-Editor" name="AndroidBuildConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; position: relative; font-size: 16px;" />
+            <uie:ObjectField label="打包配置" type="BuildTool.IOSPlatformBuildConfig, Assembly-CSharp-Editor" name="IOSBuildConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; position: relative; font-size: 16px;" />
+            <uie:ObjectField label="打包配置" type="BuildTool.PCPlatformBuildConfig, Assembly-CSharp-Editor" name="PCBuildConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; font-size: 16px;" />
         </ui:VisualElement>
-        <uie:EnumFlagsField label="自定义宏" type="CustomScriptingDefineConfig+CustomScriptingDefine, Assembly-CSharp-Editor" name="CustomScriptingDefine" style="font-size: 16px; margin-bottom: 15px;" />
+        <uie:EnumFlagsField label="自定义宏" name="CustomScriptingDefine" style="font-size: 16px; margin-bottom: 15px;" />
         <ui:Label text="版本号:" style="-unity-text-align: middle-left; font-size: 20px; align-items: center; justify-content: flex-start; align-content: auto; align-self: flex-start; flex-direction: row; margin-bottom: 10px; text-overflow: clip; width: 549px;">
             <ui:TextField enabled="true" hide-placeholder-on-focus="false" name="LongVersion" style="-unity-text-align: middle-left; left: 66px; top: 0; right: -65px; bottom: 0; width: 120px; white-space: nowrap; text-overflow: clip;" />
             <ui:TextField enabled="true" hide-placeholder-on-focus="false" name="ShortVersion" style="-unity-text-align: middle-left; left: 66px; top: 0; right: -65px; bottom: 0; width: 120px; white-space: nowrap; text-overflow: clip;" />
@@ -16,8 +16,8 @@
         </ui:Label>
         <ui:Button text="打包" enabled="true" name="BuildBtn" style="font-size: 20px; margin-bottom: 5px;" />
         <ui:Toggle label="打包AssetBundle" name="BuildAssetBundle" style="font-size: 16px;" />
-        <uie:ObjectField label="assetbundle配置" type="AssetbundleBuildConfig, Assembly-CSharp-Editor" name="AssetBundleConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; position: relative; font-size: 16px; display: flex;" />
-        <ui:EnumField label="打包完成后操作" name="AutoCopyToRemoteFolder" type="BuildTool+AfterBuildProcess, Assembly-CSharp-Editor" style="font-size: 16px;" />
+        <uie:ObjectField label="assetbundle配置" type="BuildTool.AssetbundleBuildConfig, Assembly-CSharp-Editor" name="AssetBundleConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; position: relative; font-size: 16px; display: flex;" />
+        <uie:EnumField label="打包完成后操作" value="打" name="AutoCopyToRemoteFolder" include-obsolete-values="false" style="font-size: 16px;" />
         <ui:Button text="Test" enabled="true" name="TestBtn" style="font-size: 20px; margin-bottom: 5px; width: 74px;" />
     </ui:VisualElement>
 </ui:UXML>
