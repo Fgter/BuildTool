@@ -75,6 +75,8 @@ public class PrePostProcessConfig : ScriptableObject
             string destinationPath = Path.Combine(pathToBuiltProject, p.destniationPath);
             File.Copy(p.sourcePath, destinationPath, true);
         }
+
+        CustomPostProcessBuild(target,pathToBuiltProject);
     }
 
     public void OnPreProcessBuild(BuildTarget target)
@@ -98,5 +100,17 @@ public class PrePostProcessConfig : ScriptableObject
 
             File.Copy(p.sourcePath, p.destniationPath, true);
         }
+
+        CustomPreProcessBuild(target);
+    }
+
+    public static void CustomPostProcessBuild(BuildTarget target, string pathToBuiltProject)
+    {
+
+    }
+
+    public static void CustomPreProcessBuild(BuildTarget target)
+    {
+
     }
 }
