@@ -8,8 +8,8 @@ using UnityEngine;
 
 namespace BuildTool
 {
-    [CreateAssetMenu(menuName = "BuildTool/BuildConfig/Platform/IOS")]
-    public class IOSPlatformBuildConfig : PlatformBuildConfigBase
+    [CreateAssetMenu(menuName = "BuildTool/BuildConfig/Platform/iOS")]
+    public class iOSPlatformBuildConfig : PlatformBuildConfigBase
     {
         public override bool OnBuild(BuildPathConfig pathData, string[] scriptingDefines = null)
         {
@@ -19,7 +19,7 @@ namespace BuildTool
                 return false;
             }
 
-            var buildPath = pathData.IOSLocalBuildPath;
+            var buildPath = pathData.iOSLocalBuildPath;
             if (!Directory.Exists(buildPath))
             {
                 Directory.CreateDirectory(buildPath);
@@ -32,9 +32,9 @@ namespace BuildTool
             var now = DateTime.Now;
             string directoryPath;
             if (scriptingDefines != null && scriptingDefines.Contains("ORBIT_GM"))
-                directoryPath = $"{packageName}_GM_IOS_V{PlayerSettings.bundleVersion}({PlayerSettings.iOS.buildNumber})_{now:yyyyMMdd}_{now:HHmm}";
+                directoryPath = $"{packageName}_GM_iOS_V{PlayerSettings.bundleVersion}({PlayerSettings.iOS.buildNumber})_{now:yyyyMMdd}_{now:HHmm}";
             else
-                directoryPath = $"{packageName}_IOS_V{PlayerSettings.bundleVersion}({PlayerSettings.iOS.buildNumber})_{now:yyyyMMdd}_{now:HHmm}";
+                directoryPath = $"{packageName}_iOS_V{PlayerSettings.bundleVersion}({PlayerSettings.iOS.buildNumber})_{now:yyyyMMdd}_{now:HHmm}";
             string fullName = Path.Combine(buildPath, directoryPath);
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();

@@ -5,7 +5,7 @@
         <ui:VisualElement name="configs">
             <ui:Button text="切换至对应平台" enabled="true" name="SwitchPlatformBtn" style="width: 200px; font-size: 20px; align-self: center; margin-bottom: 12px;" />
             <uie:ObjectField label="打包配置" type="BuildTool.AndroidPlatformBuildConfig, Assembly-CSharp-Editor" name="AndroidBuildConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; position: relative; font-size: 16px;" />
-            <uie:ObjectField label="打包配置" type="BuildTool.IOSPlatformBuildConfig, Assembly-CSharp-Editor" name="IOSBuildConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; position: relative; font-size: 16px;" />
+            <uie:ObjectField label="打包配置" name="iOSBuildConfig" allow-scene-objects="false" type="BuildTool.iOSPlatformBuildConfig, Assembly-CSharp-Editor" style="height: 28px; -unity-text-align: middle-left; position: relative; font-size: 16px;" />
             <uie:ObjectField label="打包配置" type="BuildTool.PCPlatformBuildConfig, Assembly-CSharp-Editor" name="PCBuildConfig" allow-scene-objects="false" style="height: 28px; -unity-text-align: middle-left; font-size: 16px;" />
         </ui:VisualElement>
         <uie:EnumFlagsField label="自定义宏" name="CustomScriptingDefine" style="font-size: 16px; margin-bottom: 15px;" />

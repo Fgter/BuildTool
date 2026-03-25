@@ -20,7 +20,7 @@ namespace BuildTool
         public enum Platform
         {
             Android = 1,
-            IOS = 2,
+            iOS = 2,
             PC = 4
         }
         public enum AfterBuildProcess
@@ -55,7 +55,7 @@ namespace BuildTool
 
         private BuildPathConfig pathData { get => (pathConfigField.value as BuildPathConfig); }
         private AndroidPlatformBuildConfig androidData { get => (androidBuildConfigField.value as AndroidPlatformBuildConfig); }
-        private IOSPlatformBuildConfig iosData { get => (iosBuildConfigField.value as IOSPlatformBuildConfig); }
+        private iOSPlatformBuildConfig iosData { get => (iosBuildConfigField.value as iOSPlatformBuildConfig); }
         private PCPlatformBuildConfig pcData { get => (pcBuildConfigField.value as PCPlatformBuildConfig); }
         private AssetbundleBuildConfig assetbundleData { get => (assetbundleBuildConfigField.value as AssetbundleBuildConfig); }
         private string[] scriptingDefines { get => ProcessScriptingDefine(); }
@@ -86,7 +86,7 @@ namespace BuildTool
 
             pathConfigField = rootVisualElement.Q<ObjectField>("BuildPathConfig");
             androidBuildConfigField = rootVisualElement.Q<ObjectField>("AndroidBuildConfig");
-            iosBuildConfigField = rootVisualElement.Q<ObjectField>("IOSBuildConfig");
+            iosBuildConfigField = rootVisualElement.Q<ObjectField>("iOSBuildConfig");
             pcBuildConfigField = rootVisualElement.Q<ObjectField>("PCBuildConfig");
             assetbundleBuildConfigField = rootVisualElement.Q<ObjectField>("AssetBundleConfig");
             customScriptingDefineField = rootVisualElement.Q<EnumFlagsField>("CustomScriptingDefine");
@@ -120,7 +120,7 @@ namespace BuildTool
                 case Platform.Android:
                     androidBuildConfigField.style.display = DisplayStyle.Flex;
                     break;
-                case Platform.IOS:
+                case Platform.iOS:
                     iosBuildConfigField.style.display = DisplayStyle.Flex;
                     break;
                 case Platform.PC:
@@ -131,15 +131,15 @@ namespace BuildTool
             buildBtn.SetEnabled(CheckPlatform());
             //切换平台按钮显示
             switchPlatformBtn.SetEnabled(!CheckPlatform());
-            assetbundleBuildConfigField.style.display = data.BuildAssetBundle ? DisplayStyle.Flex : DisplayStyle.None;
+            assetbundleBuildConfigField.style.display = data.buildAssetBundle ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private void AddListener()
         {
-            pathConfigField.RegisterValueChangedCallback(v => { data.BuildPathConfig = (BuildPathConfig)v.newValue; });
-            androidBuildConfigField.RegisterValueChangedCallback(v => { data.AndroidConfig = (AndroidPlatformBuildConfig)v.newValue; });
-            iosBuildConfigField.RegisterValueChangedCallback(v => { data.IOSConfig = (IOSPlatformBuildConfig)v.newValue; });
-            pcBuildConfigField.RegisterValueChangedCallback(v => { data.PCConfig = (PCPlatformBuildConfig)v.newValue; });
+            pathConfigField.RegisterValueChangedCallback(v => { data.buildPathConfig = (BuildPathConfig)v.newValue; });
+            androidBuildConfigField.RegisterValueChangedCallback(v => { data.androidConfig = (AndroidPlatformBuildConfig)v.newValue; });
+            iosBuildConfigField.RegisterValueChangedCallback(v => { data.iosConfig = (iOSPlatformBuildConfig)v.newValue; });
+            pcBuildConfigField.RegisterValueChangedCallback(v => { data.pcConfig = (PCPlatformBuildConfig)v.newValue; });
             assetbundleBuildConfigField.RegisterValueChangedCallback(v => { data.assetbundleConfig = (AssetbundleBuildConfig)v.newValue; });
             customScriptingDefineField.RegisterValueChangedCallback(v => { data.customScriptingDefines = (CustomScriptingDefineConfig.CustomScriptingDefine)v.newValue; });
             longVersionText.RegisterValueChangedCallback(OnLongVersionChange);
@@ -148,7 +148,7 @@ namespace BuildTool
             switchPlatformBtn.clicked += SwitchPlatform;
             buildBtn.clicked += Build;
             afterBuildProcessFiled.RegisterValueChangedCallback(v => { data.afterBuildProcess = (AfterBuildProcess)v.newValue; });
-            buildAssetBundleToggle.RegisterValueChangedCallback(v => { data.BuildAssetBundle = v.newValue; assetbundleBuildConfigField.style.display = v.newValue ? DisplayStyle.Flex : DisplayStyle.None; });
+            buildAssetBundleToggle.RegisterValueChangedCallback(v => { data.buildAssetBundle = v.newValue; assetbundleBuildConfigField.style.display = v.newValue ? DisplayStyle.Flex : DisplayStyle.None; });
             keepVersionToggle.RegisterValueChangedCallback(v => { data.keepVersion = v.newValue; });
             distinguishVersion.RegisterValueChangedCallback(v => { data.distinguishVersion = v.newValue; });
             testBtn.clicked += Test;
@@ -166,8 +166,8 @@ namespace BuildTool
                         platform = Platform.Android;
                         break;
                     case BuildTarget.iOS:
-                        platformFiled.Init(Platform.IOS);
-                        platform = Platform.IOS;
+                        platformFiled.Init(Platform.iOS);
+                        platform = Platform.iOS;
                         break;
                     case BuildTarget.StandaloneWindows64:
                         platformFiled.Init(Platform.PC);
@@ -210,7 +210,7 @@ namespace BuildTool
                 case Platform.Android:
                     shortVersionText.value = PlayerSettings.Android.bundleVersionCode.ToString();//android内部版本号
                     break;
-                case Platform.IOS:
+                case Platform.iOS:
                     shortVersionText.value = PlayerSettings.iOS.buildNumber;
                     break;
                 case Platform.PC:
@@ -222,14 +222,14 @@ namespace BuildTool
 
         private void RefreshDatas()
         {
-            pathConfigField.value = data.BuildPathConfig;
-            androidBuildConfigField.value = data.AndroidConfig;
-            iosBuildConfigField.value = data.IOSConfig;
-            pcBuildConfigField.value = data.PCConfig;
+            pathConfigField.value = data.buildPathConfig;
+            androidBuildConfigField.value = data.androidConfig;
+            iosBuildConfigField.value = data.iosConfig;
+            pcBuildConfigField.value = data.pcConfig;
             assetbundleBuildConfigField.value = data.assetbundleConfig;
             customScriptingDefineField.Init(data.customScriptingDefines);
             afterBuildProcessFiled.Init(data.afterBuildProcess);
-            buildAssetBundleToggle.value = data.BuildAssetBundle;
+            buildAssetBundleToggle.value = data.buildAssetBundle;
             keepVersionToggle.value = data.keepVersion;
             distinguishVersion.value = data.distinguishVersion;
         }
@@ -253,7 +253,7 @@ namespace BuildTool
                     case Platform.Android:
                         data.AndroidVersion = value.newValue;
                         break;
-                    case Platform.IOS:
+                    case Platform.iOS:
                         data.iOSVersion = value.newValue;
                         break;
                 }
@@ -269,7 +269,7 @@ namespace BuildTool
                 case Platform.Android:
                     PlayerSettings.Android.bundleVersionCode = version;//android内部版本号
                     break;
-                case Platform.IOS:
+                case Platform.iOS:
                     PlayerSettings.iOS.buildNumber = version.ToString();//ios内部版本号
                     break;
             }
@@ -299,7 +299,7 @@ namespace BuildTool
                             case Platform.Android:
                                 data.AndroidVersion = newLongVersion;
                                 break;
-                            case Platform.IOS:
+                            case Platform.iOS:
                                 data.iOSVersion = newLongVersion;
                                 break;
                         }
@@ -316,7 +316,7 @@ namespace BuildTool
                 case Platform.Android:
                     PlayerSettings.Android.bundleVersionCode = PlayerSettings.Android.bundleVersionCode + 1;
                     break;
-                case Platform.IOS:
+                case Platform.iOS:
                     PlayerSettings.iOS.buildNumber = (int.Parse(PlayerSettings.iOS.buildNumber) + 1).ToString();
                     break;
             }
@@ -334,7 +334,7 @@ namespace BuildTool
                 case Platform.Android:
                     SwitchToPlatform(BuildTarget.Android);
                     break;
-                case Platform.IOS:
+                case Platform.iOS:
                     SwitchToPlatform(BuildTarget.iOS);
                     break;
                 case Platform.PC:
@@ -372,8 +372,8 @@ namespace BuildTool
             {
                 case Platform.Android:
                     OnBuild_Android(); break;
-                case Platform.IOS:
-                    OnBuild_IOS(); break;
+                case Platform.iOS:
+                    OnBuild_iOS(); break;
                 case Platform.PC:
                     OnBuild_PC(); break;
                 default:
@@ -424,12 +424,12 @@ namespace BuildTool
 
         }
 
-        private void OnBuild_IOS()
+        private void OnBuild_iOS()
         {
-            if (BuildIOS())
+            if (BuildiOS())
             {
-                string localPath = pathData.IOSLocalBuildPath;
-                string remotePath = pathData.IOSRemoteBuildPath;
+                string localPath = pathData.iOSLocalBuildPath;
+                string remotePath = pathData.iOSRemoteBuildPath;
 
                 var afterBuildProcess = (AfterBuildProcess)(afterBuildProcessFiled.value);
                 if (afterBuildProcess == AfterBuildProcess.无)
@@ -522,7 +522,7 @@ namespace BuildTool
             return androidData.OnBuild(pathData, scriptingDefines);
         }
 
-        private bool BuildIOS()
+        private bool BuildiOS()
         {
             if (iosData == null || pathData == null)
             {
@@ -587,7 +587,7 @@ namespace BuildTool
                 case Platform.Android:
                     result = EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android;
                     break;
-                case Platform.IOS:
+                case Platform.iOS:
                     result = EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS;
                     break;
                 case Platform.PC:

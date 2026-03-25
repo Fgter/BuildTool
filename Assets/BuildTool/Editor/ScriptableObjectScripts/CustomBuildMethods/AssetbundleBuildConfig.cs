@@ -40,7 +40,7 @@ namespace BuildTool
                          bundleOptions,
                          BuildTarget.Android);
                     return mainfest != null;
-                case BuildTool.Platform.IOS:
+                case BuildTool.Platform.iOS:
                     EditorUserBuildSettings.SwitchActiveBuildTarget(
                        BuildPipeline.GetBuildTargetGroup(BuildTarget.iOS),
                        BuildTarget.iOS);

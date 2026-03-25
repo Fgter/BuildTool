@@ -9,8 +9,8 @@ namespace BuildTool
         [Header("打包路径")]
         public string AndroidLocalBuildPath;
         public string AndroidRemoteBuildPath = @"";
-        public string IOSLocalBuildPath;
-        public string IOSRemoteBuildPath = @"";
+        public string iOSLocalBuildPath;
+        public string iOSRemoteBuildPath = @"";
         public string PCLocalBuildPath;
         public string PCRemoteBuildPath = @"";
         [Space]
@@ -24,8 +24,8 @@ namespace BuildTool
         {
             if (string.IsNullOrEmpty(AndroidLocalBuildPath))
                 AndroidLocalBuildPath = $@"{Directory.GetParent(Application.dataPath)}\Builds\AndroidBuilds";
-            if (string.IsNullOrEmpty(IOSLocalBuildPath))
-                IOSLocalBuildPath = $@"{Directory.GetParent(Application.dataPath)}\Builds\IOSBuilds";
+            if (string.IsNullOrEmpty(iOSLocalBuildPath))
+                iOSLocalBuildPath = $@"{Directory.GetParent(Application.dataPath)}\Builds\iOSBuilds";
             if (string.IsNullOrEmpty(PCLocalBuildPath))
                 PCLocalBuildPath = $@"{Directory.GetParent(Application.dataPath)}\Builds\PCBuilds";
             if (string.IsNullOrEmpty(keyStorePath))
