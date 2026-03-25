@@ -6,15 +6,24 @@ namespace BuildTool
     [CreateAssetMenu(menuName = "BuildTool/BuildToolPersistentData")]
     public class BuildToolPersistentData : ScriptableObject
     {
-        public BuildPathConfig BuildPathConfig { get; set; }
-        public AndroidPlatformBuildConfig AndroidConfig { get; set; }
-        public IOSPlatformBuildConfig IOSConfig { get; set; }
-        public PCPlatformBuildConfig PCConfig { get; set; }
-        public AssetbundleBuildConfig assetbundleConfig { get; set; }
-        public BuildTool.AfterBuildProcess afterBuildProcess { get; set; }
-        public bool BuildAssetBundle { get; set; }
-        public CustomScriptingDefineConfig.CustomScriptingDefine customScriptingDefines { get; set; }
-        public bool keepVersion { get; set; }
+        [HideInInspector]
+        public BuildPathConfig BuildPathConfig;
+        [HideInInspector]
+        public AndroidPlatformBuildConfig AndroidConfig;
+        [HideInInspector]
+        public IOSPlatformBuildConfig IOSConfig;
+        [HideInInspector]
+        public PCPlatformBuildConfig PCConfig;
+        [HideInInspector]
+        public AssetbundleBuildConfig assetbundleConfig;
+        [HideInInspector]
+        public BuildTool.AfterBuildProcess afterBuildProcess;
+        [HideInInspector]
+        public bool BuildAssetBundle;
+        [HideInInspector]
+        public CustomScriptingDefineConfig.CustomScriptingDefine customScriptingDefines;
+        [HideInInspector]
+        public bool keepVersion;
 
         private void OnEnable()
         {

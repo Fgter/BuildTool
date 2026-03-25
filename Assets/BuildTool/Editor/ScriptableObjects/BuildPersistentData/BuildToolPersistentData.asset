@@ -12,3 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a8c1caa60f330947b46e0df913573b2, type: 3}
   m_Name: BuildToolPersistentData
   m_EditorClassIdentifier: 
+  BuildPathConfig: {fileID: 11400000, guid: 2dc426d3d94e223459e2441a2fb2a756, type: 2}
+  AndroidConfig: {fileID: 11400000, guid: 619545518dcdb164b94c334c2ab82290, type: 2}
+  IOSConfig: {fileID: 11400000, guid: fcf930fa92a013048a1c907eacc0fba7, type: 2}
+  PCConfig: {fileID: 11400000, guid: f6dc4d106886484449d999a6ab65d851, type: 2}
+  assetbundleConfig: {fileID: 11400000, guid: c803bd798fa81654c82250449ee8df91, type: 2}
+  afterBuildProcess: 0
+  BuildAssetBundle: 0
+  customScriptingDefines: 0
+  keepVersion: 0
