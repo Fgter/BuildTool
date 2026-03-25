@@ -31,7 +31,7 @@ public class PrePostProcessConfig : ScriptableObject
                 if (_instance == null)
                 {
                     _instance = CreateInstance<PrePostProcessConfig>();
-                    AssetDatabase.CreateAsset(instance, "Assets/BuildTool/Editor/ScriptableObjects/BuildConfig/Others/PrePostProcessConfig.asset");
+                    AssetDatabase.CreateAsset(_instance, "Assets/BuildTool/Editor/ScriptableObjects/BuildConfig/Others/PrePostProcessConfig.asset");
                     AssetDatabase.SaveAssets();
                 }
             }

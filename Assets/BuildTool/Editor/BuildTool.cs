@@ -73,6 +73,15 @@ namespace BuildTool
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(BuildWindowPath);
             visualTree.CloneTree(rootVisualElement);
             data = AssetDatabase.LoadAssetAtPath<BuildToolPersistentData>(BuildToolDataPath);
+            if (data == null)
+            {
+                string directoryPath = BuildToolDataPath.Replace("/BuildToolPersistentData.asset", "");
+                if (!Directory.Exists(directoryPath))
+                    Directory.CreateDirectory(directoryPath);
+                var instance = CreateInstance<BuildToolPersistentData>();
+                AssetDatabase.CreateAsset(instance, BuildToolDataPath);
+                AssetDatabase.SaveAssets();
+            }
 
             pathConfigField = rootVisualElement.Q<ObjectField>("BuildPathConfig");
             androidBuildConfigField = rootVisualElement.Q<ObjectField>("AndroidBuildConfig");
@@ -177,6 +186,10 @@ namespace BuildTool
             longVersionText.SetEnabled(platform != Platform.PC);
             shortVersionText.SetEnabled(platform != Platform.PC);
             keepVersionToggle.SetEnabled(platform != Platform.PC);
+            if (platform != Platform.PC)
+                keepVersionToggle.value = data.keepVersion;
+            else
+                keepVersionToggle.SetValueWithoutNotify(false);
             //版本号
             longVersionText.value = PlayerSettings.bundleVersion.ToString();
             switch (platform)

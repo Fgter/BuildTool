@@ -14,8 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   androidPreMoveFileProcess: []
   iosPreMoveFileProcess: []
-  iosPostMoveFileProcess:
-  - sourcePath: Assets/www.txt
-    destniationPath: Classes/www.txt
+  iosPostMoveFileProcess: []
   pcPreMoveFileProcess: []
   pcPostMoveFileProcess: []
