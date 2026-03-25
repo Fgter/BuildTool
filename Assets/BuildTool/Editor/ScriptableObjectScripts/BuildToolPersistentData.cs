@@ -6,28 +6,30 @@ namespace BuildTool
     [CreateAssetMenu(menuName = "BuildTool/BuildToolPersistentData")]
     public class BuildToolPersistentData : ScriptableObject
     {
-        [HideInInspector]
+        [SerializeField, HideInInspector]
         public BuildPathConfig buildPathConfig;
-        [HideInInspector]
+        [SerializeField, HideInInspector]
         public AndroidPlatformBuildConfig androidConfig;
-        [HideInInspector]
+        [SerializeField, HideInInspector]
         public iOSPlatformBuildConfig iosConfig;
-        [HideInInspector]
+        [SerializeField, HideInInspector]
         public PCPlatformBuildConfig pcConfig;
-        [HideInInspector]
+        [SerializeField, HideInInspector]
         public AssetbundleBuildConfig assetbundleConfig;
-        [HideInInspector]
+        [SerializeField, HideInInspector]
         public BuildTool.AfterBuildProcess afterBuildProcess;
-        [HideInInspector]
+        [SerializeField, HideInInspector]
         public bool buildAssetBundle;
-        [HideInInspector]
+        [SerializeField, HideInInspector]
         public CustomScriptingDefineConfig.CustomScriptingDefine customScriptingDefines;
-        [HideInInspector]
+        [SerializeField, HideInInspector]
         public bool keepVersion;
-        [HideInInspector]
+        [SerializeField, HideInInspector]
         public bool distinguishVersion;
-        private string androidVersion;
-        private string iosVersion;
+        [SerializeField, HideInInspector]
+        public string androidVersion;
+        [SerializeField, HideInInspector]
+        public string iosVersion;
 
         public string AndroidVersion
         {
