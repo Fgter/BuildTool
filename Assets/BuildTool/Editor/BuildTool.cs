@@ -44,6 +44,7 @@ namespace BuildTool
         private TextField longVersionText;
         private TextField shortVersionText;
         private Toggle keepVersionToggle;
+        private Toggle distinguishVersion;
         private Button switchPlatformBtn;
         private Button buildBtn;
 
@@ -94,6 +95,7 @@ namespace BuildTool
             longVersionText = rootVisualElement.Q<TextField>("LongVersion");
             shortVersionText = rootVisualElement.Q<TextField>("ShortVersion");
             keepVersionToggle = rootVisualElement.Q<Toggle>("KeepVersion");
+            distinguishVersion = rootVisualElement.Q<Toggle>("DistinguishVersion");
             switchPlatformBtn = rootVisualElement.Q<Button>("SwitchPlatformBtn");
             buildBtn = rootVisualElement.Q<Button>("BuildBtn");
             buildAssetBundleToggle = rootVisualElement.Q<Toggle>("BuildAssetBundle");
@@ -148,6 +150,7 @@ namespace BuildTool
             afterBuildProcessFiled.RegisterValueChangedCallback(v => { data.afterBuildProcess = (AfterBuildProcess)v.newValue; });
             buildAssetBundleToggle.RegisterValueChangedCallback(v => { data.BuildAssetBundle = v.newValue; assetbundleBuildConfigField.style.display = v.newValue ? DisplayStyle.Flex : DisplayStyle.None; });
             keepVersionToggle.RegisterValueChangedCallback(v => { data.keepVersion = v.newValue; });
+            distinguishVersion.RegisterValueChangedCallback(v => { data.distinguishVersion = v.newValue; });
             testBtn.clicked += Test;
         }
 
@@ -183,22 +186,32 @@ namespace BuildTool
 
         private void RefreshVersion()
         {
-            longVersionText.SetEnabled(platform != Platform.PC);
-            shortVersionText.SetEnabled(platform != Platform.PC);
-            keepVersionToggle.SetEnabled(platform != Platform.PC);
-            if (platform != Platform.PC)
+            var isPC = platform == Platform.PC;
+            longVersionText.SetEnabled(!isPC);
+            shortVersionText.SetEnabled(!isPC);
+            keepVersionToggle.SetEnabled(!isPC);
+            distinguishVersion.SetEnabled(!isPC);
+            if (!isPC)
+            {
                 keepVersionToggle.value = data.keepVersion;
+                distinguishVersion.value = data.distinguishVersion;
+            }
             else
+            {
                 keepVersionToggle.SetValueWithoutNotify(false);
-            //版本号
-            longVersionText.value = PlayerSettings.bundleVersion.ToString();
+                distinguishVersion.SetValueWithoutNotify(false);
+            }
+
+            if (distinguishVersion.value)
+                PlayerSettings.bundleVersion = platform == Platform.Android ? data.AndroidVersion : data.iOSVersion;
+            longVersionText.value = PlayerSettings.bundleVersion;
             switch (platform)
             {
                 case Platform.Android:
                     shortVersionText.value = PlayerSettings.Android.bundleVersionCode.ToString();//android内部版本号
                     break;
                 case Platform.IOS:
-                    shortVersionText.value = PlayerSettings.iOS.buildNumber.ToString();
+                    shortVersionText.value = PlayerSettings.iOS.buildNumber;
                     break;
                 case Platform.PC:
                     shortVersionText.value = "";
@@ -218,6 +231,7 @@ namespace BuildTool
             afterBuildProcessFiled.Init(data.afterBuildProcess);
             buildAssetBundleToggle.value = data.BuildAssetBundle;
             keepVersionToggle.value = data.keepVersion;
+            distinguishVersion.value = data.distinguishVersion;
         }
         #endregion
 
@@ -233,6 +247,16 @@ namespace BuildTool
             if (platform == Platform.PC)
                 return;
             PlayerSettings.bundleVersion = value.newValue;
+            if (distinguishVersion.value)
+                switch (platform)
+                {
+                    case Platform.Android:
+                        data.AndroidVersion = value.newValue;
+                        break;
+                    case Platform.IOS:
+                        data.iOSVersion = value.newValue;
+                        break;
+                }
         }
 
         private void OnShortVersionChange(ChangeEvent<string> value)
@@ -268,6 +292,18 @@ namespace BuildTool
                     versionList[versionList.Length - 1] = newLittleVersion;
                     string newLongVersion = string.Join(".", versionList);
                     PlayerSettings.bundleVersion = newLongVersion;
+                    if (distinguishVersion.value)
+                    {
+                        switch (platform)
+                        {
+                            case Platform.Android:
+                                data.AndroidVersion = newLongVersion;
+                                break;
+                            case Platform.IOS:
+                                data.iOSVersion = newLongVersion;
+                                break;
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
@@ -726,24 +762,7 @@ namespace BuildTool
 
         public void Test()
         {
-            var sds = customScriptingDefineField.value.ToString();
-            List<string> sdList = new List<string>();
-            if (sds == "0")
-                return;
-            else if (sds == "-1")
-            {
-                foreach (var e in Enum.GetValues(customScriptingDefineField.value.GetType()))
-                {
-                    sdList.Add(e.ToString());
-                }
-            }
-            else
-                sdList.AddRange(sds.Split(','));
-
-            foreach (var e in sdList)
-            {
-                Debug.Log($"{e}");
-            }
+            IncreaseVersion();
         }
     }
 }

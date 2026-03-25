@@ -16,8 +16,9 @@ MonoBehaviour:
   AndroidConfig: {fileID: 11400000, guid: 619545518dcdb164b94c334c2ab82290, type: 2}
   IOSConfig: {fileID: 11400000, guid: fcf930fa92a013048a1c907eacc0fba7, type: 2}
   PCConfig: {fileID: 11400000, guid: f6dc4d106886484449d999a6ab65d851, type: 2}
-  assetbundleConfig: {fileID: 11400000, guid: c803bd798fa81654c82250449ee8df91, type: 2}
+  assetbundleConfig: {fileID: 0}
   afterBuildProcess: 0
   BuildAssetBundle: 0
   customScriptingDefines: 0
   keepVersion: 0
+  distinguishVersion: 1

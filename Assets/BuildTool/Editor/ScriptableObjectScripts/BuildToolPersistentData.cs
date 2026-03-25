@@ -24,6 +24,39 @@ namespace BuildTool
         public CustomScriptingDefineConfig.CustomScriptingDefine customScriptingDefines;
         [HideInInspector]
         public bool keepVersion;
+        [HideInInspector]
+        public bool distinguishVersion;
+        private string androidVersion;
+        private string iosVersion;
+
+        public string AndroidVersion
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(androidVersion))
+                    androidVersion = PlayerSettings.bundleVersion;
+                return androidVersion;
+            }
+            set
+            {
+                androidVersion = value;
+            }
+        }
+
+        public string iOSVersion
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(iosVersion))
+                    iosVersion = PlayerSettings.bundleVersion;
+                return iosVersion;
+            }
+            set
+            {
+                iosVersion = value;
+            }
+        }
+
 
         private void OnEnable()
         {
@@ -37,6 +70,12 @@ namespace BuildTool
                 PCConfig = AssetDatabase.LoadAssetAtPath<PCPlatformBuildConfig>("Assets/BuildTool/Editor/ScriptableObjects/BuildConfig/PC/PCBuildConfig.asset");
             if (assetbundleConfig == null)
                 assetbundleConfig = AssetDatabase.LoadAssetAtPath<AssetbundleBuildConfig>("Assets/BuildTool/Editor/ScriptableObjects/BuildConfig/Assetbundle/AssetbundleBuildConfig.asset");
+        }
+
+        private void Reset()
+        {
+            androidVersion = "";
+            iOSVersion = "";
         }
     }
 }

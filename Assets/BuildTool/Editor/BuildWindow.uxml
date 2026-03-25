@@ -12,7 +12,10 @@
         <ui:Label text="版本号:" style="-unity-text-align: middle-left; font-size: 20px; align-items: center; justify-content: flex-start; align-content: auto; align-self: flex-start; flex-direction: row; margin-bottom: 10px; text-overflow: clip; width: 549px;">
             <ui:TextField enabled="true" hide-placeholder-on-focus="false" name="LongVersion" style="-unity-text-align: middle-left; left: 66px; top: 0; right: -65px; bottom: 0; width: 120px; white-space: nowrap; text-overflow: clip;" />
             <ui:TextField enabled="true" hide-placeholder-on-focus="false" name="ShortVersion" style="-unity-text-align: middle-left; left: 66px; top: 0; right: -65px; bottom: 0; width: 120px; white-space: nowrap; text-overflow: clip;" />
-            <ui:Toggle label="保持大版本不变" name="KeepVersion" style="position: relative; left: 73px; font-size: 16px; -unity-text-align: middle-center;" />
+            <ui:VisualElement name="VisualElement" style="flex-grow: 1;">
+                <ui:Toggle label="区分Android与iOS大版本号" name="DistinguishVersion" style="position: relative; left: 73px; font-size: 12px; -unity-text-align: middle-center;" />
+                <ui:Toggle label="保持大版本不变" name="KeepVersion" style="position: relative; left: 73px; font-size: 14px; -unity-text-align: middle-center;" />
+            </ui:VisualElement>
         </ui:Label>
         <ui:Button text="打包" enabled="true" name="BuildBtn" style="font-size: 20px; margin-bottom: 5px;" />
         <ui:Toggle label="打包AssetBundle" name="BuildAssetBundle" style="font-size: 16px;" />
