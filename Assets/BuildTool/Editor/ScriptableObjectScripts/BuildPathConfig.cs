@@ -15,10 +15,21 @@ namespace BuildTool
         public string PCRemoteBuildPath = @"";
         [Space]
         [Header("KeyStore")]
-        public string keyStorePath = @"";
+        [SerializeField]
+        [Tooltip("相对于项目根目录的路径")]
+        [Header("相对于项目根目录的路径")]
+        private string keyStorePath = @"";
         public string keyStorePassword = "";
         public string keyaliasName = "";
         public string keyaliasPassword = "";
+
+        public string KeyStorePath
+        {
+            get
+            {
+                return Path.Combine(Directory.GetParent(Application.dataPath).FullName, keyStorePath);
+            }
+        }
 
         private void OnValidate()
         {
@@ -28,8 +39,6 @@ namespace BuildTool
                 iOSLocalBuildPath = $@"{Directory.GetParent(Application.dataPath)}\Builds\iOSBuilds";
             if (string.IsNullOrEmpty(PCLocalBuildPath))
                 PCLocalBuildPath = $@"{Directory.GetParent(Application.dataPath)}\Builds\PCBuilds";
-            if (string.IsNullOrEmpty(keyStorePath))
-                keyStorePath = $@"{Directory.GetParent(Application.dataPath)}\KeyStore\";
         }
     }
 }

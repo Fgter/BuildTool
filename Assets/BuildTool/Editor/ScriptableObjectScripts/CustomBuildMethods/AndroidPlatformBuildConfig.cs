@@ -29,7 +29,7 @@ namespace BuildTool
 
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, Identification);
 
-            PlayerSettings.Android.keystoreName = pathData.keyStorePath;
+            PlayerSettings.Android.keystoreName = pathData.KeyStorePath;
             PlayerSettings.Android.keystorePass = pathData.keyStorePassword;
             PlayerSettings.Android.keyaliasName = pathData.keyaliasName;
             PlayerSettings.Android.keyaliasPass = pathData.keyaliasPassword;

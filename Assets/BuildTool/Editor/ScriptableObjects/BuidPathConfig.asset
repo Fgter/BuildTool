@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AndroidLocalBuildPath: E:\UnityProjects\BuildTool\Builds\AndroidBuilds
   AndroidRemoteBuildPath: 
-  IOSLocalBuildPath: E:\UnityProjects\BuildTool\Builds\IOSBuilds
-  IOSRemoteBuildPath: 
+  iOSLocalBuildPath: E:\UnityProjects\BuildTool\Builds\iOSBuilds
+  iOSRemoteBuildPath: 
   PCLocalBuildPath: E:\UnityProjects\BuildTool\Builds\PCBuilds
   PCRemoteBuildPath: 
-  keyStorePath: E:\UnityProjects\BuildTool\KeyStore\
+  keyStorePath: 
   keyStorePassword: 
   keyaliasName: 
   keyaliasPassword: 
