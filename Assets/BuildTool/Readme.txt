@@ -1,4 +1,4 @@
-version:0.1.5
+version:0.1.6
 使用步骤:
 1.配置Project/Assets/BuildTool/Editor/ScriptableObjects下除BuildToolPersistentData的文件
 	tips:宏控制文件CustomScriptingDefineConfig更改后需点击 "编译脚本" 后才可应用
