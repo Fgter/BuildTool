@@ -131,26 +131,26 @@ namespace BuildTool
             buildBtn.SetEnabled(CheckPlatform());
             //切换平台按钮显示
             switchPlatformBtn.SetEnabled(!CheckPlatform());
-            assetbundleBuildConfigField.style.display = data.buildAssetBundle ? DisplayStyle.Flex : DisplayStyle.None;
+            assetbundleBuildConfigField.style.display = data.BuildAssetBundle ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private void AddListener()
         {
-            pathConfigField.RegisterValueChangedCallback(v => { data.buildPathConfig = (BuildPathConfig)v.newValue; });
-            androidBuildConfigField.RegisterValueChangedCallback(v => { data.androidConfig = (AndroidPlatformBuildConfig)v.newValue; });
-            iosBuildConfigField.RegisterValueChangedCallback(v => { data.iosConfig = (iOSPlatformBuildConfig)v.newValue; });
-            pcBuildConfigField.RegisterValueChangedCallback(v => { data.pcConfig = (PCPlatformBuildConfig)v.newValue; });
-            assetbundleBuildConfigField.RegisterValueChangedCallback(v => { data.assetbundleConfig = (AssetbundleBuildConfig)v.newValue; });
-            customScriptingDefineField.RegisterValueChangedCallback(v => { data.customScriptingDefines = (CustomScriptingDefineConfig.CustomScriptingDefine)v.newValue; });
+            pathConfigField.RegisterValueChangedCallback(v => { data.BuildPathConfig = (BuildPathConfig)v.newValue; });
+            androidBuildConfigField.RegisterValueChangedCallback(v => { data.AndroidConfig = (AndroidPlatformBuildConfig)v.newValue; });
+            iosBuildConfigField.RegisterValueChangedCallback(v => { data.iOSConfig = (iOSPlatformBuildConfig)v.newValue; });
+            pcBuildConfigField.RegisterValueChangedCallback(v => { data.PCConfig = (PCPlatformBuildConfig)v.newValue; });
+            assetbundleBuildConfigField.RegisterValueChangedCallback(v => { data.AssetbundleConfig = (AssetbundleBuildConfig)v.newValue; });
+            customScriptingDefineField.RegisterValueChangedCallback(v => { data.CustomScriptingDefines = (CustomScriptingDefineConfig.CustomScriptingDefine)v.newValue; });
             longVersionText.RegisterValueChangedCallback(OnLongVersionChange);
             shortVersionText.RegisterValueChangedCallback(OnShortVersionChange);
             platformFiled.RegisterValueChangedCallback(OnPlatformChange);
             switchPlatformBtn.clicked += SwitchPlatform;
             buildBtn.clicked += Build;
-            afterBuildProcessFiled.RegisterValueChangedCallback(v => { data.afterBuildProcess = (AfterBuildProcess)v.newValue; });
-            buildAssetBundleToggle.RegisterValueChangedCallback(v => { data.buildAssetBundle = v.newValue; assetbundleBuildConfigField.style.display = v.newValue ? DisplayStyle.Flex : DisplayStyle.None; });
-            keepVersionToggle.RegisterValueChangedCallback(v => { data.keepVersion = v.newValue; });
-            distinguishVersion.RegisterValueChangedCallback(v => { data.distinguishVersion = v.newValue; });
+            afterBuildProcessFiled.RegisterValueChangedCallback(v => { data.AfterBuildProcess = (AfterBuildProcess)v.newValue; });
+            buildAssetBundleToggle.RegisterValueChangedCallback(v => { data.BuildAssetBundle = v.newValue; assetbundleBuildConfigField.style.display = v.newValue ? DisplayStyle.Flex : DisplayStyle.None; });
+            keepVersionToggle.RegisterValueChangedCallback(v => { data.KeepVersion = v.newValue; });
+            distinguishVersion.RegisterValueChangedCallback(v => { data.DistinguishVersion = v.newValue; });
             testBtn.clicked += Test;
         }
 
@@ -181,7 +181,7 @@ namespace BuildTool
             }
             else
                 platformFiled.Init(platform);
-            afterBuildProcessFiled.Init(data.afterBuildProcess);
+            afterBuildProcessFiled.Init(data.AfterBuildProcess);
         }
 
         private void RefreshVersion()
@@ -193,8 +193,8 @@ namespace BuildTool
             distinguishVersion.SetEnabled(!isPC);
             if (!isPC)
             {
-                keepVersionToggle.value = data.keepVersion;
-                distinguishVersion.value = data.distinguishVersion;
+                keepVersionToggle.value = data.KeepVersion;
+                distinguishVersion.value = data.DistinguishVersion;
             }
             else
             {
@@ -222,16 +222,16 @@ namespace BuildTool
 
         private void RefreshDatas()
         {
-            pathConfigField.value = data.buildPathConfig;
-            androidBuildConfigField.value = data.androidConfig;
-            iosBuildConfigField.value = data.iosConfig;
-            pcBuildConfigField.value = data.pcConfig;
-            assetbundleBuildConfigField.value = data.assetbundleConfig;
-            customScriptingDefineField.Init(data.customScriptingDefines);
-            afterBuildProcessFiled.Init(data.afterBuildProcess);
-            buildAssetBundleToggle.value = data.buildAssetBundle;
-            keepVersionToggle.value = data.keepVersion;
-            distinguishVersion.value = data.distinguishVersion;
+            pathConfigField.value = data.BuildPathConfig;
+            androidBuildConfigField.value = data.AndroidConfig;
+            iosBuildConfigField.value = data.iOSConfig;
+            pcBuildConfigField.value = data.PCConfig;
+            assetbundleBuildConfigField.value = data.AssetbundleConfig;
+            customScriptingDefineField.Init(data.CustomScriptingDefines);
+            afterBuildProcessFiled.Init(data.AfterBuildProcess);
+            buildAssetBundleToggle.value = data.BuildAssetBundle;
+            keepVersionToggle.value = data.KeepVersion;
+            distinguishVersion.value = data.DistinguishVersion;
         }
         #endregion
 

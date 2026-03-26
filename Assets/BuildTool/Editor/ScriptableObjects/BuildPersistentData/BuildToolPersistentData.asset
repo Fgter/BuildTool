@@ -22,5 +22,5 @@ MonoBehaviour:
   customScriptingDefines: 0
   keepVersion: 0
   distinguishVersion: 0
-  androidVersion: 
-  iosVersion: 
+  androidVersion: 0.1.1
+  iosVersion: 0.1.1

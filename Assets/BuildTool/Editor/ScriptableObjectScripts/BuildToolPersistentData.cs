@@ -6,31 +6,121 @@ namespace BuildTool
     [CreateAssetMenu(menuName = "BuildTool/BuildToolPersistentData")]
     public class BuildToolPersistentData : ScriptableObject
     {
+        [SerializeField,HideInInspector]
+        private BuildPathConfig buildPathConfig;
         [SerializeField, HideInInspector]
-        public BuildPathConfig buildPathConfig;
+        private AndroidPlatformBuildConfig androidConfig;
         [SerializeField, HideInInspector]
-        public AndroidPlatformBuildConfig androidConfig;
+        private iOSPlatformBuildConfig iosConfig;
         [SerializeField, HideInInspector]
-        public iOSPlatformBuildConfig iosConfig;
+        private PCPlatformBuildConfig pcConfig;
         [SerializeField, HideInInspector]
-        public PCPlatformBuildConfig pcConfig;
+        private AssetbundleBuildConfig assetbundleConfig;
         [SerializeField, HideInInspector]
-        public AssetbundleBuildConfig assetbundleConfig;
+        private BuildTool.AfterBuildProcess afterBuildProcess;
         [SerializeField, HideInInspector]
-        public BuildTool.AfterBuildProcess afterBuildProcess;
+        private bool buildAssetBundle;
         [SerializeField, HideInInspector]
-        public bool buildAssetBundle;
+        private CustomScriptingDefineConfig.CustomScriptingDefine customScriptingDefines;
         [SerializeField, HideInInspector]
-        public CustomScriptingDefineConfig.CustomScriptingDefine customScriptingDefines;
+        private bool keepVersion;
         [SerializeField, HideInInspector]
-        public bool keepVersion;
+        private bool distinguishVersion;
         [SerializeField, HideInInspector]
-        public bool distinguishVersion;
+        private string androidVersion;
         [SerializeField, HideInInspector]
-        public string androidVersion;
-        [SerializeField, HideInInspector]
-        public string iosVersion;
+        private string iosVersion;
 
+        public BuildPathConfig BuildPathConfig
+        {
+            get => buildPathConfig;
+            set
+            {
+                buildPathConfig = value;
+                SaveChange();
+            }
+        }
+        public AndroidPlatformBuildConfig AndroidConfig
+        {
+            get => androidConfig;
+            set
+            {
+                androidConfig = value;
+                SaveChange();
+            }
+        }
+        public iOSPlatformBuildConfig iOSConfig
+        {
+            get => iosConfig;
+            set
+            {
+                iosConfig = value;
+                SaveChange();
+            }
+        }
+        public PCPlatformBuildConfig PCConfig
+        {
+            get => pcConfig;
+            set
+            {
+                pcConfig = value;
+                SaveChange();
+            }
+        }
+        public AssetbundleBuildConfig AssetbundleConfig
+        {
+            get => assetbundleConfig;
+            set
+            {
+                assetbundleConfig = value;
+                SaveChange();
+            }
+        }
+        public BuildTool.AfterBuildProcess AfterBuildProcess
+        {
+            get => afterBuildProcess;
+            set
+            {
+                afterBuildProcess = value;
+                SaveChange();
+            }
+        }
+        public bool BuildAssetBundle
+        {
+            get => buildAssetBundle;
+            set
+            {
+                buildAssetBundle = value;
+                SaveChange();
+            }
+        }
+        public CustomScriptingDefineConfig.CustomScriptingDefine CustomScriptingDefines
+        {
+            get => customScriptingDefines;
+            set
+            {
+                customScriptingDefines = value;
+                SaveChange();
+            }
+        }
+        public bool KeepVersion
+        {
+            get => keepVersion;
+            set
+            {
+                keepVersion = value;
+                SaveChange();
+            }
+        }
+        public bool DistinguishVersion
+        {
+            get => distinguishVersion;
+            set
+            {
+                distinguishVersion = value;
+                SaveChange();
+            }
+        }
         public string AndroidVersion
         {
             get
@@ -42,6 +132,7 @@ namespace BuildTool
             set
             {
                 androidVersion = value;
+                SaveChange();
             }
         }
         public string iOSVersion
@@ -55,7 +146,14 @@ namespace BuildTool
             set
             {
                 iosVersion = value;
+                SaveChange();
             }
+        }
+
+        private void SaveChange()
+        {
+            EditorUtility.SetDirty(this);
+            AssetDatabase.SaveAssets();
         }
     }
 }
