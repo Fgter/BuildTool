@@ -257,6 +257,7 @@ namespace BuildTool
                         data.iOSVersion = value.newValue;
                         break;
                 }
+            AssetDatabase.SaveAssets();
         }
 
         private void OnShortVersionChange(ChangeEvent<string> value)
@@ -273,6 +274,7 @@ namespace BuildTool
                     PlayerSettings.iOS.buildNumber = version.ToString();//ios内部版本号
                     break;
             }
+            AssetDatabase.SaveAssets();
         }
         #endregion
 
