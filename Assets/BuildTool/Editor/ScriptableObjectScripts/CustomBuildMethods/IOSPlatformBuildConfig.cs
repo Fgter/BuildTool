@@ -31,10 +31,13 @@ namespace BuildTool
 
             var now = DateTime.Now;
             string directoryPath;
+            string suffixName = "";
             if (scriptingDefines != null && scriptingDefines.Contains("ORBIT_GM"))
-                directoryPath = $"{packageName}_GM_iOS_V{PlayerSettings.bundleVersion}({PlayerSettings.iOS.buildNumber})_{now:yyyyMMdd}_{now:HHmm}";
-            else
-                directoryPath = $"{packageName}_iOS_V{PlayerSettings.bundleVersion}({PlayerSettings.iOS.buildNumber})_{now:yyyyMMdd}_{now:HHmm}";
+                suffixName += "_GM";
+            if (buildOptions.HasFlag(BuildOptions.Development))
+                suffixName += "_DEV";
+
+            directoryPath = $"{packageName}_iOS_V{PlayerSettings.bundleVersion}({PlayerSettings.iOS.buildNumber}){suffixName}_{now:yyyyMMdd}_{now:HHmm}";
             string fullName = Path.Combine(buildPath, directoryPath);
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();

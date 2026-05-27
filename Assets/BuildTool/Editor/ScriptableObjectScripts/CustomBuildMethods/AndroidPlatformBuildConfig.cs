@@ -36,10 +36,13 @@ namespace BuildTool
 
             var now = DateTime.Now;
             string pkgName;
+            string suffixName = "";
             if (scriptingDefines != null && scriptingDefines.Contains("ORBIT_GM"))
-                pkgName = $"{packageName}_GM_V{PlayerSettings.bundleVersion}({PlayerSettings.Android.bundleVersionCode})_{now:yyyyMMdd}_{now:HHmm}.apk";
-            else
-                pkgName = $"{packageName}_V{PlayerSettings.bundleVersion}({PlayerSettings.Android.bundleVersionCode})_{now:yyyyMMdd}_{now:HHmm}.apk";
+                suffixName += "_GM";
+            if (buildOptions.HasFlag(BuildOptions.Development))
+                suffixName += "_DEV";
+
+            pkgName = $"{packageName}_V{PlayerSettings.bundleVersion}({PlayerSettings.Android.bundleVersionCode}){suffixName}_{now:yyyyMMdd}_{now:HHmm}.apk";
             string fullName = Path.Combine(buildPath, pkgName);
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();

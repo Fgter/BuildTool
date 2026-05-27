@@ -766,5 +766,21 @@ namespace BuildTool
         {
             IncreaseVersion();
         }
+
+        #region Utilities
+        [MenuItem("打包工具/OpenFolder/PersistentDataPath")]
+        public static void OpenPersistentDataPath()
+        {
+            string path = Application.persistentDataPath;
+            EditorUtility.RevealInFinder(path);
+        }
+
+        [MenuItem("打包工具/OpenFolder/DataPath")]
+        public static void OpenDataPath()
+        {
+            string path = Application.dataPath;
+            EditorUtility.RevealInFinder(path);
+        }
+        #endregion
     }
 }

@@ -28,10 +28,13 @@ namespace BuildTool
 
             var now = DateTime.Now;
             string directoryPath;
+            string suffixName = "";
             if (scriptingDefines != null && scriptingDefines.Contains("ORBIT_GM"))
-                directoryPath = Path.Combine(buildPath, $"{packageName}_GM_PC_{now:yyyyMMdd}_{now:HHmm}");
-            else
-                directoryPath = Path.Combine(buildPath, $"{packageName}_PC_{now:yyyyMMdd}_{now:HHmm}");
+                suffixName += "_GM";
+            if (buildOptions.HasFlag(BuildOptions.Development))
+                suffixName += "_DEV";
+            
+                directoryPath = Path.Combine(buildPath, $"{packageName}_PC{suffixName}_{now:yyyyMMdd}_{now:HHmm}");
             string tmpName = $"{packageName}.exe";
             string fullPath = Path.Combine(directoryPath, tmpName);
 
