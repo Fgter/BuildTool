@@ -487,10 +487,12 @@ namespace BuildTool
                 switch (afterBuildProcess)
                 {
                     case AfterBuildProcess.仅压缩:
+                        DeleteDonotShipFolders(Path.Combine(localPath, file));
                         CompressFolder(Path.Combine(localPath, file), Path.Combine(localPath, file));
                         Process.Start("Explorer.exe", localPath);
                         break;
                     case AfterBuildProcess.压缩并复制到公共盘:
+                        DeleteDonotShipFolders(Path.Combine(localPath, file));
                         CompressFolder(Path.Combine(localPath, file), Path.Combine(localPath, file));
                         file = FindLatestFile(localPath);
                         try
@@ -758,6 +760,29 @@ namespace BuildTool
             {
                 Debug.LogError($"扫描失败: {ex.Message}");
                 return null;
+            }
+        }
+        
+        public static void DeleteDonotShipFolders(string directoryPath)
+        {
+            try
+            {
+                string[] directories = Directory.GetDirectories(directoryPath);
+        
+                foreach (string dir in directories)
+                {
+                    string folderName = Path.GetFileName(dir);
+                    
+                    if (folderName.EndsWith("BurstDebugInformation_DoNotShip", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Directory.Delete(dir, true);
+                        Console.WriteLine($"已删除文件夹: {dir}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"删除文件夹时出错: {ex.Message}");
             }
         }
         #endregion
