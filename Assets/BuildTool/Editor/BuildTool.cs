@@ -614,13 +614,15 @@ namespace BuildTool
             {
                 foreach (var e in Enum.GetValues(customScriptingDefineField.value.GetType()))
                 {
-                    sdList.Add(e.ToString());
+                    sdList.Add(e.ToString().Trim());
                 }
             }
             else
-                sdList.AddRange(sds.Split(','));
+                sdList.AddRange(sds.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(sd => sd.Trim())
+                    .Where(sd => !string.IsNullOrEmpty(sd)));
 
-            return sdList.ToArray();
+            return sdList.Count > 0 ? sdList.ToArray() : null;
         }
 
         private static bool ExecuteShellScript(string shellName)
